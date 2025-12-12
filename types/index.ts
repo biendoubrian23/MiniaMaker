@@ -11,6 +11,7 @@ export interface GenerateRequest {
   extraImageUrl: string;
   prompt: string;
   count: number;
+  model?: 'flash' | 'pro';
 }
 
 export interface GenerateResponse {
@@ -20,4 +21,11 @@ export interface GenerateResponse {
 export interface ErrorResponse {
   error: string;
   details?: string;
+}
+
+export interface CompactAnalysis {
+  style: string;
+  colors: string[];
+  composition: string;
+  extra: string;
 }

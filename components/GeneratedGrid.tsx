@@ -57,7 +57,8 @@ export default function GeneratedGrid({ images, loading = false }: GeneratedGrid
 
   return (
     <div className="w-full">
-      <h2 className="text-xl font-bold text-textPrimary mb-4">
+      <h2 className="text-xl font-bold text-textPrimary mb-4 flex items-center gap-2">
+        <span className="w-1 h-6 bg-youtubeRed"></span>
         Miniatures générées
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

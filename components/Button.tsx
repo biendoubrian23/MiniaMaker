@@ -23,8 +23,8 @@ export default function Button({
   const baseStyles = 'px-6 py-3 font-medium transition-all duration-200 border-2';
   
   const variantStyles = {
-    primary: 'bg-textPrimary text-white border-textPrimary hover:bg-textSecondary hover:border-textSecondary disabled:bg-gray-300 disabled:border-gray-300',
-    secondary: 'bg-white text-textPrimary border-border hover:border-textSecondary disabled:text-gray-300 disabled:border-gray-200',
+    primary: 'bg-textPrimary text-white border-textPrimary hover:bg-youtubeRed hover:border-youtubeRed disabled:bg-gray-300 disabled:border-gray-300 transition-colors',
+    secondary: 'bg-white text-textPrimary border-border hover:border-youtubeRed disabled:text-gray-300 disabled:border-gray-200 transition-colors',
   };
 
   return (

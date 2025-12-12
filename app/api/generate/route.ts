@@ -44,13 +44,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Appel à l'IA pour générer les miniatures
+    const useProModel = body.model === 'pro';
+
+    // Appel à l'IA pour générer les miniatures (OPTIMISÉ)
     const images = await generateThumbnails(
       body.faceImageUrl,
       body.inspirationImageUrl,
       body.extraImageUrl,
       body.prompt,
-      count
+      count,
+      useProModel
     );
 
     // Retourner les images générées

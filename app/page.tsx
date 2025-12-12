@@ -16,6 +16,7 @@ export default function Home() {
   const [extraImage, setExtraImage] = useState<File | null>(null);
   const [prompt, setPrompt] = useState('');
   const [count, setCount] = useState(2);
+  const [model, setModel] = useState<'flash' | 'pro'>('flash');
   const [loading, setLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +59,7 @@ export default function Home() {
       const inspirationBase64 = await fileToBase64(inspirationImage!);
       const extraBase64 = await fileToBase64(extraImage!);
 
-      // Appeler l'API de génération
+      // Appeler l'API de génération (OPTIMISÉE)
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
@@ -70,6 +71,7 @@ export default function Home() {
           extraImageUrl: extraBase64,
           prompt: prompt.trim(),
           count,
+          model,
         }),
       });
 
@@ -95,7 +97,8 @@ export default function Home() {
       
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Section Uploads */}
-        <section className="bg-white border-2 border-border p-8 mb-8">
+        <section className="bg-white border-2 border-border p-8 mb-8 relative">
+          <div className="absolute top-0 left-0 w-1 h-12 bg-youtubeRed"></div>
           <h2 className="text-xl font-bold text-textPrimary mb-6">
             Images de référence
           </h2>
@@ -125,7 +128,8 @@ export default function Home() {
         </section>
 
         {/* Section Prompt */}
-        <section className="bg-white border-2 border-border p-8 mb-8">
+        <section className="bg-white border-2 border-border p-8 mb-8 relative">
+          <div className="absolute top-0 left-0 w-1 h-12 bg-youtubeRed"></div>
           <h2 className="text-xl font-bold text-textPrimary mb-6">
             Description de la miniature
           </h2>
@@ -134,14 +138,16 @@ export default function Home() {
         </section>
 
         {/* Section Options de génération */}
-        <section className="bg-white border-2 border-border p-8 mb-8">
+        <section className="bg-white border-2 border-border p-8 mb-8 relative">
+          <div className="absolute top-0 left-0 w-1 h-12 bg-youtubeRed"></div>
           <h2 className="text-xl font-bold text-textPrimary mb-6">
             Options de génération
           </h2>
           
           <div className="flex flex-col space-y-4">
             <div>
-              <label className="text-sm font-medium text-textPrimary mb-2 block">
+              <label className="text-sm font-medium text-textPrimary mb-2 flex items-center gap-2">
+                <span className="w-1 h-4 bg-youtubeRed"></span>
                 Nombre d'images à générer
               </label>
               <div className="flex space-x-4">
@@ -153,8 +159,8 @@ export default function Home() {
                       px-6 py-3 border-2 font-medium transition-all
                       ${
                         count === num
-                          ? 'bg-textPrimary text-white border-textPrimary'
-                          : 'bg-white text-textPrimary border-border hover:border-textSecondary'
+                          ? 'bg-youtubeRed text-white border-youtubeRed'
+                          : 'bg-white text-textPrimary border-border hover:border-youtubeRed'
                       }
                     `}
                   >
@@ -162,6 +168,44 @@ export default function Home() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-textPrimary mb-2 flex items-center gap-2">
+                <span className="w-1 h-4 bg-youtubeRed"></span>
+                Modèle Gemini
+              </label>
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => setModel('flash')}
+                  className={`
+                    px-6 py-3 border-2 font-medium transition-all
+                    ${
+                      model === 'flash'
+                        ? 'bg-youtubeRed text-white border-youtubeRed'
+                        : 'bg-white text-textPrimary border-border hover:border-youtubeRed'
+                    }
+                  `}
+                >
+                  1.5 Flash (Rapide)
+                </button>
+                <button
+                  onClick={() => setModel('pro')}
+                  className={`
+                    px-6 py-3 border-2 font-medium transition-all
+                    ${
+                      model === 'pro'
+                        ? 'bg-youtubeRed text-white border-youtubeRed'
+                        : 'bg-white text-textPrimary border-border hover:border-youtubeRed'
+                    }
+                  `}
+                >
+                  1.5 Flash+ (Qualité)
+                </button>
+              </div>
+              <p className="text-xs text-textSecondary mt-2">
+                Flash : Standard, rapide • Flash+ : Optimisé, meilleure qualité
+              </p>
             </div>
 
             <div className="pt-4">

@@ -14,6 +14,8 @@ const config: Config = {
         border: '#E5E7EB',
         textPrimary: '#111827',
         textSecondary: '#6B7280',
+        youtubeRed: '#FF0000',
+        youtubeRedLight: '#FF0000',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

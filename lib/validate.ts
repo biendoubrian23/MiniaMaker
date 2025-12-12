@@ -58,9 +58,8 @@ export async function fileToBase64(file: File): Promise<string> {
     reader.readAsDataURL(file);
     reader.onload = () => {
       if (typeof reader.result === 'string') {
-        // Retirer le préfixe "data:image/xxx;base64,"
-        const base64 = reader.result.split(',')[1];
-        resolve(base64);
+        // Retourner le Data URL complet (avec préfixe)
+        resolve(reader.result);
       } else {
         reject(new Error('Erreur lors de la lecture du fichier'));
       }

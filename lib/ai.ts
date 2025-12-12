@@ -1,85 +1,93 @@
-// Intégration avec Gemini API pour la génération d'images
-import { GoogleGenerativeAI } from '@google/generative-ai';
+// Intégration avec Gemini API (Nano Banana) pour la génération d'images
+import { GoogleGenAI } from '@google/genai';
 
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
   throw new Error('GEMINI_API_KEY n\'est pas défini dans les variables d\'environnement');
 }
 
-const genAI = new GoogleGenerativeAI(apiKey);
+const ai = new GoogleGenAI({ apiKey });
+
+function parseDataUrl(dataUrl: string) {
+  const matches = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!matches) {
+    // Si ce n'est pas une data URL, on suppose que c'est du base64 brut (fallback)
+    // et on devine le mime type ou on met jpeg par défaut
+    return { mimeType: 'image/jpeg', data: dataUrl };
+  }
+  return { mimeType: matches[1], data: matches[2] };
+}
 
 /**
  * Génère des miniatures à partir des images et du prompt fournis
+ * Utilise gemini-3-pro-image-preview (Nano Banana)
  */
 export async function generateThumbnails(
   faceImageBase64: string,
   inspirationImageBase64: string,
   extraImageBase64: string,
   prompt: string,
-  count: number = 2
+  count: number = 2,
+  useProModel: boolean = false
 ): Promise<string[]> {
   try {
-    // Utiliser le modèle spécifié : gemini-3-pro-image-preview
-    const model = genAI.getGenerativeModel({ model: 'gemini-3-pro-image-preview' });
+    const model = 'gemini-3-pro-image-preview';
+    
+    // Prompt ultra-compact pour générer l'image
+    const finalPrompt = `Create YouTube thumbnail 16:9. Include face, style reference, and object. ${prompt}`;
 
-    // Construire le prompt enrichi avec les instructions
-    const enrichedPrompt = `
-Génère une miniature (thumbnail) créative pour YouTube en suivant ces instructions :
+    const face = parseDataUrl(faceImageBase64);
+    const inspiration = parseDataUrl(inspirationImageBase64);
+    const extra = parseDataUrl(extraImageBase64);
 
-IMAGES FOURNIES :
-- Image du visage : à intégrer dans la composition
-- Image d'inspiration : pour le style et l'ambiance générale
-- Image extra : élément additionnel à incorporer (objet, outil, symbole)
-
-DESCRIPTION :
-${prompt}
-
-CONSIGNES :
-- Crée une composition visuellement impactante
-- Intègre harmonieusement les trois images
-- Style moderne et professionnel
-- Format 16:9 optimisé pour thumbnail YouTube
-- Haute qualité visuelle
-    `.trim();
-
-    const images = [
+    const contents = [
       {
-        inlineData: {
-          data: faceImageBase64,
-          mimeType: 'image/jpeg',
-        },
-      },
-      {
-        inlineData: {
-          data: inspirationImageBase64,
-          mimeType: 'image/jpeg',
-        },
-      },
-      {
-        inlineData: {
-          data: extraImageBase64,
-          mimeType: 'image/jpeg',
-        },
+        role: 'user',
+        parts: [
+          { text: finalPrompt },
+          { inlineData: { mimeType: face.mimeType, data: face.data } },
+          { inlineData: { mimeType: inspiration.mimeType, data: inspiration.data } },
+          { inlineData: { mimeType: extra.mimeType, data: extra.data } },
+        ],
       },
     ];
 
-    // Générer les images
+    const config = {
+      responseModalities: ['IMAGE', 'TEXT'],
+    };
+
     const results: string[] = [];
 
+    // Générer le nombre d'images demandé
     for (let i = 0; i < count; i++) {
-      const result = await model.generateContent([enrichedPrompt, ...images]);
-      const response = await result.response;
-      const text = response.text();
+      const response = await ai.models.generateContentStream({
+        model,
+        config,
+        contents,
+      });
 
-      // Pour l'instant, stocker la réponse (à adapter selon le vrai format de retour de Gemini)
-      // Note : Gemini pourrait retourner des URLs ou des données d'image
-      results.push(text);
+      // Collecter les chunks d'image
+      for await (const chunk of response) {
+        const candidates = chunk.candidates;
+        if (candidates && candidates.length > 0) {
+            const parts = candidates[0].content?.parts;
+            if (parts) {
+                for (const part of parts) {
+                    if (part.inlineData && part.inlineData.data) {
+                        const mimeType = part.inlineData.mimeType || 'image/png';
+                        const dataUrl = `data:${mimeType};base64,${part.inlineData.data}`;
+                        results.push(dataUrl);
+                    }
+                }
+            }
+        }
+      }
     }
 
     return results;
   } catch (error) {
     console.error('Erreur lors de la génération des miniatures:', error);
-    throw new Error('Échec de la génération des miniatures');
+    throw error;
   }
 }
 
@@ -88,9 +96,12 @@ CONSIGNES :
  */
 export async function testGeminiConnection(): Promise<boolean> {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-3-pro-image-preview' });
-    // Test simple
-    await model.generateContent('test');
+    // On utilise un modèle standard pour le test de connexion
+    const model = 'gemini-1.5-flash';
+    await ai.models.generateContent({
+        model,
+        contents: [{ role: 'user', parts: [{ text: 'test' }] }],
+    });
     return true;
   } catch (error) {
     console.error('Erreur de connexion à Gemini:', error);

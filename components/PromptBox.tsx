@@ -32,7 +32,8 @@ export default function PromptBox({ value, onChange }: PromptBoxProps) {
 
   return (
     <div className="flex flex-col space-y-2">
-      <label className="text-sm font-medium text-textPrimary">
+      <label className="text-sm font-medium text-textPrimary flex items-center gap-2">
+        <span className="w-1 h-4 bg-youtubeRed"></span>
         Prompt de génération
       </label>
       <p className="text-xs text-textSecondary mb-2">
