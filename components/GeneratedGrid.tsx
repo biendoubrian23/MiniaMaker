@@ -1,7 +1,7 @@
 // Composant GeneratedGrid pour afficher les miniatures générées
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Button from './Button';
 
 interface GeneratedGridProps {
@@ -10,6 +10,8 @@ interface GeneratedGridProps {
 }
 
 export default function GeneratedGrid({ images, loading = false }: GeneratedGridProps) {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   const handleDownload = async (imageUrl: string, index: number) => {
     try {
       const response = await fetch(imageUrl);
@@ -34,15 +36,31 @@ export default function GeneratedGrid({ images, loading = false }: GeneratedGrid
         <h2 className="text-xl font-bold text-textPrimary mb-4">
           Miniatures générées
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {[1, 2].map((i) => (
             <div
               key={i}
-              className="relative w-full h-64 border-2 border-border bg-lightBg flex items-center justify-center"
+              className="relative w-full aspect-video border-2 border-border bg-gradient-to-br from-white to-gray-50 flex items-center justify-center overflow-hidden"
             >
+              {/* Barre de progression animée */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-gray-200">
+                <div 
+                  className="h-full bg-gradient-to-r from-youtubeRed via-red-500 to-youtubeRed animate-pulse"
+                  style={{
+                    width: '70%',
+                    animation: 'shimmer 2s ease-in-out infinite'
+                  }}
+                />
+              </div>
+              
+              {/* Cercle spinner stylé */}
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 border-4 border-textPrimary border-t-transparent animate-spin mb-3" />
-                <p className="text-sm text-textSecondary">Génération en cours...</p>
+                <div className="relative w-16 h-16 mb-4">
+                  <div className="absolute inset-0 border-4 border-gray-200 rounded-full" />
+                  <div className="absolute inset-0 border-4 border-youtubeRed border-t-transparent rounded-full animate-spin" />
+                </div>
+                <p className="text-sm font-medium text-textPrimary animate-pulse">Génération en cours...</p>
+                <p className="text-xs text-textSecondary mt-1">Image {i}/2</p>
               </div>
             </div>
           ))}
@@ -61,11 +79,12 @@ export default function GeneratedGrid({ images, loading = false }: GeneratedGrid
         <span className="w-1 h-6 bg-youtubeRed"></span>
         Miniatures générées
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {images.map((image, index) => (
           <div
             key={index}
-            className="relative group border-2 border-border bg-white overflow-hidden transition-transform duration-200 hover:scale-[1.03]"
+            className="relative group border-2 border-border bg-white overflow-hidden transition-transform duration-200 hover:scale-[1.03] cursor-pointer"
+            onClick={() => setSelectedImage(image)}
           >
             <div className="aspect-video w-full">
               <img
@@ -79,7 +98,10 @@ export default function GeneratedGrid({ images, loading = false }: GeneratedGrid
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <Button
                   variant="secondary"
-                  onClick={() => handleDownload(image, index)}
+                  onClick={(e) => {
+                    e?.stopPropagation();
+                    handleDownload(image, index);
+                  }}
                   className="bg-white"
                 >
                   Télécharger
@@ -89,12 +111,33 @@ export default function GeneratedGrid({ images, loading = false }: GeneratedGrid
 
             <div className="p-3 border-t-2 border-border">
               <p className="text-xs text-textSecondary">
-                Miniature {index + 1}
+                Miniature {index + 1} (Cliquer pour agrandir)
               </p>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Lightbox / Aperçu plein écran */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button 
+            className="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 focus:outline-none"
+            onClick={() => setSelectedImage(null)}
+          >
+            &times;
+          </button>
+          <img 
+            src={selectedImage} 
+            alt="Aperçu plein écran" 
+            className="max-w-full max-h-full object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }

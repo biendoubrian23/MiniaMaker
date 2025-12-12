@@ -27,8 +27,7 @@ export async function generateThumbnails(
   inspirationImageBase64: string,
   extraImageBase64: string,
   prompt: string,
-  count: number = 2,
-  useProModel: boolean = false
+  count: number = 2
 ): Promise<string[]> {
   try {
     const model = 'gemini-3-pro-image-preview';
@@ -57,9 +56,11 @@ export async function generateThumbnails(
     };
 
     const results: string[] = [];
+    let lastTextResponse = '';
 
     // Générer le nombre d'images demandé
     for (let i = 0; i < count; i++) {
+      console.log(`Generating image ${i + 1}/${count}...`);
       const response = await ai.models.generateContentStream({
         model,
         config,
@@ -70,18 +71,37 @@ export async function generateThumbnails(
       for await (const chunk of response) {
         const candidates = chunk.candidates;
         if (candidates && candidates.length > 0) {
-            const parts = candidates[0].content?.parts;
+            const candidate = candidates[0];
+            console.log('Candidate received:', JSON.stringify(candidate, null, 2));
+            
+            if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+                console.warn(`Generation stopped with reason: ${candidate.finishReason}`);
+            }
+
+            const parts = candidate.content?.parts;
             if (parts) {
                 for (const part of parts) {
                     if (part.inlineData && part.inlineData.data) {
+                        console.log('Image data received');
                         const mimeType = part.inlineData.mimeType || 'image/png';
                         const dataUrl = `data:${mimeType};base64,${part.inlineData.data}`;
                         results.push(dataUrl);
+                    } else if (part.text) {
+                        console.log('Text received:', part.text);
+                        lastTextResponse += part.text;
                     }
                 }
             }
         }
       }
+    }
+
+    if (results.length === 0) {
+        console.warn('No images generated.');
+        if (lastTextResponse) {
+            throw new Error(`Aucune image générée. Le modèle a répondu : ${lastTextResponse}`);
+        }
+        throw new Error('Aucune image générée par le modèle (réponse vide ou bloquée).');
     }
 
     return results;

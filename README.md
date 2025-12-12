@@ -17,7 +17,7 @@ Application web Next.js pour générer des miniatures créatives avec l'intellig
 
 - Node.js 18+ installé
 - npm ou yarn
-- Clé API Gemini (déjà configurée dans `.env.local`)
+- Clé API Gemini
 
 ### Étapes d'installation
 
@@ -26,10 +26,10 @@ Application web Next.js pour générer des miniatures créatives avec l'intellig
 npm install
 ```
 
-2. **Vérifier la configuration** :
-La clé API Gemini est déjà configurée dans `.env.local` :
+2. **Configurer la clé API** :
+Créez un fichier `.env.local` à la racine du projet (il est ignoré par git) :
 ```
-GEMINI_API_KEY=AIzaSyDPD1n7k824uF4-DBBHt-Gtne-d9YiWSWQ
+GEMINI_API_KEY=votre_clé_api
 ```
 
 3. **Lancer le serveur de développement** :

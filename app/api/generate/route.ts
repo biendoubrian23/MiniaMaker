@@ -6,6 +6,13 @@ import type { GenerateRequest, GenerateResponse, ErrorResponse } from '@/types';
 export async function POST(request: NextRequest) {
   try {
     const body: GenerateRequest = await request.json();
+    console.log('Request received for generation:', {
+        prompt: body.prompt,
+        count: body.count,
+        hasFace: !!body.faceImageUrl,
+        hasInspiration: !!body.inspirationImageUrl,
+        hasExtra: !!body.extraImageUrl
+    });
 
     // Validation des champs requis
     if (!body.faceImageUrl) {
@@ -44,16 +51,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const useProModel = body.model === 'pro';
-
     // Appel à l'IA pour générer les miniatures (OPTIMISÉ)
     const images = await generateThumbnails(
       body.faceImageUrl,
       body.inspirationImageUrl,
       body.extraImageUrl,
       body.prompt,
-      count,
-      useProModel
+      count
     );
 
     // Retourner les images générées

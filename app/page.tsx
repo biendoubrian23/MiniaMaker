@@ -16,7 +16,6 @@ export default function Home() {
   const [extraImage, setExtraImage] = useState<File | null>(null);
   const [prompt, setPrompt] = useState('');
   const [count, setCount] = useState(2);
-  const [model, setModel] = useState<'flash' | 'pro'>('flash');
   const [loading, setLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +38,13 @@ export default function Home() {
   const handleExtraImage = (file: File) => {
     setExtraImage(file);
     setExtraPreview(URL.createObjectURL(file));
+  };
+
+  const addQuickPhrase = (text: string) => {
+    setPrompt((prev) => {
+      if (!prev) return text;
+      return prev.endsWith(' ') ? prev + text : prev + ' ' + text;
+    });
   };
 
   const canGenerate = faceImage && inspirationImage && extraImage && prompt.trim().length >= 10;
@@ -71,7 +77,6 @@ export default function Home() {
           extraImageUrl: extraBase64,
           prompt: prompt.trim(),
           count,
-          model,
         }),
       });
 
@@ -92,147 +97,143 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-lightBg">
+    <div className="min-h-screen bg-lightBg relative overflow-hidden">
+      {/* Lueurs de fond YouTube style */}
+      <div className="fixed top-20 right-10 w-[500px] h-[500px] bg-youtubeRed opacity-[0.03] rounded-full blur-3xl animate-glow pointer-events-none"></div>
+      <div className="fixed bottom-20 left-10 w-[600px] h-[600px] bg-youtubeRed opacity-[0.04] rounded-full blur-3xl animate-glow pointer-events-none" style={{animationDelay: '2s'}}></div>
+      <div className="fixed top-1/2 left-1/2 w-[400px] h-[400px] bg-youtubeRed opacity-[0.02] rounded-full blur-3xl animate-float pointer-events-none"></div>
+      
       <Header />
       
-      <main className="max-w-7xl mx-auto px-6 py-12">
-        {/* Section Uploads */}
-        <section className="bg-white border-2 border-border p-8 mb-8 relative">
-          <div className="absolute top-0 left-0 w-1 h-12 bg-youtubeRed"></div>
-          <h2 className="text-xl font-bold text-textPrimary mb-6">
-            Images de référence
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <UploadBox
-              label="Face Image"
-              description="Uploadez une photo de visage"
-              onImageSelect={handleFaceImage}
-              currentImage={facePreview}
-            />
-            
-            <UploadBox
-              label="Inspiration Image"
-              description="Image de référence pour le style"
-              onImageSelect={handleInspirationImage}
-              currentImage={inspirationPreview}
-            />
-            
-            <UploadBox
-              label="Extra Image"
-              description="Objet, outil ou symbole additionnel"
-              onImageSelect={handleExtraImage}
-              currentImage={extraPreview}
-            />
+      <main className="max-w-7xl mx-auto px-6 py-12 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Colonne Gauche : Uploads et Prompt */}
+          <div className="lg:col-span-8 space-y-8">
+            {/* Section Uploads */}
+            <section className="bg-white border-2 border-border p-8 relative shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in-up">
+              <div className="absolute top-0 left-0 w-1 h-12 bg-youtubeRed"></div>
+              <h2 className="text-xl font-bold text-textPrimary mb-6">
+                Images de référence
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <UploadBox
+                  label="Face Image"
+                  description="Uploadez une photo de visage"
+                  onImageSelect={handleFaceImage}
+                  currentImage={facePreview}
+                />
+                
+                <UploadBox
+                  label="Inspiration Image"
+                  description="Image de référence pour le style"
+                  onImageSelect={handleInspirationImage}
+                  currentImage={inspirationPreview}
+                />
+                
+                <UploadBox
+                  label="Extra Image"
+                  description="Objet, outil ou symbole additionnel"
+                  onImageSelect={handleExtraImage}
+                  currentImage={extraPreview}
+                />
+              </div>
+            </section>
+
+            {/* Section Prompt */}
+            <section className="bg-white border-2 border-border p-8 relative shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
+              <div className="absolute top-0 left-0 w-1 h-12 bg-youtubeRed"></div>
+              <h2 className="text-xl font-bold text-textPrimary mb-6">
+                Description de la miniature
+              </h2>
+              
+              <PromptBox value={prompt} onChange={setPrompt} />
+              
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  onClick={() => addQuickPhrase("Génère une image de moi en t'inspirant exactement de l'image de référence")}
+                  className="text-xs bg-gray-100 hover:bg-youtubeRed hover:text-white text-textPrimary px-3 py-2 rounded border border-gray-300 hover:border-youtubeRed transition-all duration-300 hover:scale-105 hover:shadow-md"
+                >
+                  + Inspiration Visage
+                </button>
+                <button
+                  onClick={() => addQuickPhrase("Intègre l'objet de l'image extra dans la scène de manière réaliste")}
+                  className="text-xs bg-gray-100 hover:bg-youtubeRed hover:text-white text-textPrimary px-3 py-2 rounded border border-gray-300 hover:border-youtubeRed transition-all duration-300 hover:scale-105 hover:shadow-md"
+                >
+                  + Avec Objet Extra
+                </button>
+                <button
+                  onClick={() => addQuickPhrase("Reproduis fidèlement le style, l'éclairage et la composition de l'image d'inspiration")}
+                  className="text-xs bg-gray-100 hover:bg-youtubeRed hover:text-white text-textPrimary px-3 py-2 rounded border border-gray-300 hover:border-youtubeRed transition-all duration-300 hover:scale-105 hover:shadow-md"
+                >
+                  + Style & Compo
+                </button>
+              </div>
+            </section>
           </div>
-        </section>
 
-        {/* Section Prompt */}
-        <section className="bg-white border-2 border-border p-8 mb-8 relative">
-          <div className="absolute top-0 left-0 w-1 h-12 bg-youtubeRed"></div>
-          <h2 className="text-xl font-bold text-textPrimary mb-6">
-            Description de la miniature
-          </h2>
-          
-          <PromptBox value={prompt} onChange={setPrompt} />
-        </section>
+          {/* Colonne Droite : Options et Résultats */}
+          <div className="lg:col-span-4 space-y-8">
+            {/* Section Options de génération */}
+            <section className="bg-white border-2 border-border p-8 relative shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+              <div className="absolute top-0 left-0 w-1 h-12 bg-youtubeRed"></div>
+              <h2 className="text-xl font-bold text-textPrimary mb-6">
+                Options de génération
+              </h2>
+              
+              <div className="flex flex-col space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-textPrimary mb-2 flex items-center gap-2">
+                    <span className="w-1 h-4 bg-youtubeRed"></span>
+                    Nombre d'images à générer
+                  </label>
+                  <div className="flex space-x-4">
+                    {[1, 2, 3, 4].map((num) => (
+                      <button
+                        key={num}
+                        onClick={() => setCount(num)}
+                        className={`
+                          px-6 py-3 border-2 font-medium transition-all duration-300 hover:scale-110
+                          ${
+                            count === num
+                              ? 'bg-youtubeRed text-white border-youtubeRed shadow-lg shadow-youtubeRed/50 scale-105'
+                              : 'bg-white text-textPrimary border-border hover:border-youtubeRed hover:shadow-md'
+                          }
+                        `}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-        {/* Section Options de génération */}
-        <section className="bg-white border-2 border-border p-8 mb-8 relative">
-          <div className="absolute top-0 left-0 w-1 h-12 bg-youtubeRed"></div>
-          <h2 className="text-xl font-bold text-textPrimary mb-6">
-            Options de génération
-          </h2>
-          
-          <div className="flex flex-col space-y-4">
-            <div>
-              <label className="text-sm font-medium text-textPrimary mb-2 flex items-center gap-2">
-                <span className="w-1 h-4 bg-youtubeRed"></span>
-                Nombre d'images à générer
-              </label>
-              <div className="flex space-x-4">
-                {[1, 2, 3, 4].map((num) => (
-                  <button
-                    key={num}
-                    onClick={() => setCount(num)}
-                    className={`
-                      px-6 py-3 border-2 font-medium transition-all
-                      ${
-                        count === num
-                          ? 'bg-youtubeRed text-white border-youtubeRed'
-                          : 'bg-white text-textPrimary border-border hover:border-youtubeRed'
-                      }
-                    `}
+                <div className="pt-4">
+                  <Button
+                    onClick={handleGenerate}
+                    disabled={!canGenerate}
+                    loading={loading}
+                    className="w-full"
                   >
-                    {num}
-                  </button>
-                ))}
-              </div>
-            </div>
+                    Générer les miniatures
+                  </Button>
+                </div>
 
-            <div>
-              <label className="text-sm font-medium text-textPrimary mb-2 flex items-center gap-2">
-                <span className="w-1 h-4 bg-youtubeRed"></span>
-                Modèle Gemini
-              </label>
-              <div className="flex space-x-4">
-                <button
-                  onClick={() => setModel('flash')}
-                  className={`
-                    px-6 py-3 border-2 font-medium transition-all
-                    ${
-                      model === 'flash'
-                        ? 'bg-youtubeRed text-white border-youtubeRed'
-                        : 'bg-white text-textPrimary border-border hover:border-youtubeRed'
-                    }
-                  `}
-                >
-                  1.5 Flash (Rapide)
-                </button>
-                <button
-                  onClick={() => setModel('pro')}
-                  className={`
-                    px-6 py-3 border-2 font-medium transition-all
-                    ${
-                      model === 'pro'
-                        ? 'bg-youtubeRed text-white border-youtubeRed'
-                        : 'bg-white text-textPrimary border-border hover:border-youtubeRed'
-                    }
-                  `}
-                >
-                  1.5 Flash+ (Qualité)
-                </button>
+                {error && (
+                  <div className="mt-4 p-4 border-2 border-red-500 bg-red-50">
+                    <p className="text-sm text-red-600">{error}</p>
+                  </div>
+                )}
               </div>
-              <p className="text-xs text-textSecondary mt-2">
-                Flash : Standard, rapide • Flash+ : Optimisé, meilleure qualité
-              </p>
-            </div>
+            </section>
 
-            <div className="pt-4">
-              <Button
-                onClick={handleGenerate}
-                disabled={!canGenerate}
-                loading={loading}
-                className="w-full md:w-auto"
-              >
-                Générer les miniatures
-              </Button>
-            </div>
-
-            {error && (
-              <div className="mt-4 p-4 border-2 border-red-500 bg-red-50">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
+            {/* Section Miniatures générées */}
+            {(loading || generatedImages.length > 0) && (
+              <section className="bg-white border-2 border-border p-8">
+                <GeneratedGrid images={generatedImages} loading={loading} />
+              </section>
             )}
           </div>
-        </section>
-
-        {/* Section Miniatures générées */}
-        {(loading || generatedImages.length > 0) && (
-          <section className="bg-white border-2 border-border p-8">
-            <GeneratedGrid images={generatedImages} loading={loading} />
-          </section>
-        )}
+        </div>
       </main>
     </div>
   );

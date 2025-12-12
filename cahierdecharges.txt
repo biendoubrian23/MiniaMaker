@@ -1,5 +1,4 @@
 je vais utiliser nano banana de gemini
-et voici ma clé : AIzaSyDPD1n7k824uF4-DBBHt-Gtne-d9YiWSWQ
 et utlise ce model: gemini-3-pro-image-preview (a utiliser absolument)
 
 
