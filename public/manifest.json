@@ -1,0 +1,21 @@
+{
+  "name": "MakeMinia - Générateur de Miniatures YouTube",
+  "short_name": "MakeMinia",
+  "description": "Créez des miniatures YouTube professionnelles avec l'IA. Générateur gratuit de thumbnails attractifs.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF0000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/top.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "photo", "graphics"],
+  "lang": "fr",
+  "dir": "ltr"
+}
