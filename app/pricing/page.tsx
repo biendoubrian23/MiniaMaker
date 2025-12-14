@@ -5,9 +5,17 @@ import React from 'react';
 import Header from '@/components/Header';
 import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+
+// URLs de paiement Stripe (mode test)
+const STRIPE_LINKS = {
+  starter: 'https://buy.stripe.com/test_14AeVcfrKbuo4hh1yocV200',
+  pro: 'https://buy.stripe.com/test_aFa6oG2EY6a4bJJ50QcV201',
+};
 
 export default function PricingPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   
   const plans = [
     {
@@ -15,6 +23,7 @@ export default function PricingPage() {
       price: '4.99€',
       credits: 10,
       description: t('pricing.starterDesc'),
+      stripeLink: STRIPE_LINKS.starter,
       features: [
         `10 ${t('pricing.feature1')}`,
         t('pricing.feature2'),
@@ -28,6 +37,7 @@ export default function PricingPage() {
       credits: 25,
       description: t('pricing.proDesc'),
       popular: true,
+      stripeLink: STRIPE_LINKS.pro,
       features: [
         `25 ${t('pricing.feature1')}`,
         t('pricing.feature3'),
@@ -37,6 +47,14 @@ export default function PricingPage() {
       ],
     },
   ];
+
+  // Construire l'URL Stripe avec l'email pré-rempli
+  const getStripeUrl = (baseUrl: string) => {
+    if (user?.email) {
+      return `${baseUrl}?prefilled_email=${encodeURIComponent(user.email)}`;
+    }
+    return baseUrl;
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -101,9 +119,10 @@ export default function PricingPage() {
                 ))}
               </ul>
 
-              <button
+              <a
+                href={user ? getStripeUrl(plan.stripeLink) : '/auth'}
                 className={`
-                  w-full px-6 py-4 text-lg font-bold border-4 border-black transition-all duration-200
+                  w-full px-6 py-4 text-lg font-bold border-4 border-black transition-all duration-200 block text-center
                   hover:translate-x-[2px] hover:translate-y-[2px]
                   ${
                     plan.popular
@@ -112,8 +131,8 @@ export default function PricingPage() {
                   }
                 `}
               >
-                {t('pricing.buy')}
-              </button>
+                {user ? t('pricing.buy') : t('auth.loginToBuy')}
+              </a>
             </div>
           ))}
         </div>

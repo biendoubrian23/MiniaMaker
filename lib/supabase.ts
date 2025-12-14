@@ -12,6 +12,7 @@ export interface Profile {
   email: string;
   full_name: string | null;
   credits: number;
+  subscription_tier: 'free' | 'starter' | 'pro';
   created_at: string;
   updated_at: string;
 }

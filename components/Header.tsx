@@ -31,10 +31,23 @@ export default function Header() {
               </div>
             </Link>
             {user && profile && (
-              <div className="text-sm">
+              <div className="text-sm flex items-center gap-2">
                 <span className="text-gray-600">{t('header.hello')}, </span>
                 <span className="font-bold text-black">{profile.full_name || profile.email}</span>
-                <span className="ml-3 px-2 py-1 bg-youtubeRed text-white text-xs font-bold">
+                {/* Badge Statut */}
+                <span className={`px-2 py-1 text-xs font-bold border-2 ${
+                  profile.subscription_tier === 'pro' 
+                    ? 'bg-yellow-400 text-black border-yellow-600' 
+                    : profile.subscription_tier === 'starter' 
+                      ? 'bg-blue-500 text-white border-blue-700' 
+                      : 'bg-gray-200 text-gray-700 border-gray-400'
+                }`}>
+                  {profile.subscription_tier === 'pro' ? '⭐ PRO' : 
+                   profile.subscription_tier === 'starter' ? '🚀 STARTER' : 
+                   '🆓 ' + t('header.free')}
+                </span>
+                {/* Badge Crédits */}
+                <span className="px-2 py-1 bg-youtubeRed text-white text-xs font-bold">
                   {profile.credits} {t('header.credits')}
                 </span>
               </div>
