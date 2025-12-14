@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 // URLs de paiement Stripe (mode test)
 const STRIPE_LINKS = {
   starter: 'https://buy.stripe.com/test_14AeVcfrKbuo4hh1yocV200',
-  pro: 'https://buy.stripe.com/test_aFa6oG2EY6a4bJJ50QcV201',
+  pro: 'https://buy.stripe.com/test_aFa6oG2EY6a4bJJ90QcV201',
 };
 
 export default function PricingPage() {
