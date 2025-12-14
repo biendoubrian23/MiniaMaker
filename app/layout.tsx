@@ -4,6 +4,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { getBaseMetadata, getOrganizationSchema, getWebApplicationSchema } from '@/lib/metadata';
 import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -41,6 +42,7 @@ export default function RootLayout({
             {children}
           </AuthProvider>
         </LanguageProvider>
+        <Analytics />
       </body>
     </html>
   );
