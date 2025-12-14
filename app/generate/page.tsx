@@ -18,19 +18,7 @@ export default function GeneratePage() {
   const router = useRouter();
   const { t } = useTranslation();
 
-  // Redirection si non connecté - MAIS SEULEMENT après avoir vérifié la session
-  useEffect(() => {
-    if (!authLoading && !user) {
-      console.log('🚫 Non connecté, redirection vers /auth');
-      router.push('/auth');
-    }
-  }, [user, authLoading, router]);
-
-  // Ne rien afficher pendant le chargement - évite les erreurs d'hydration
-  if (authLoading || !user || !profile) {
-    return null;
-  }
-
+  // TOUS les useState doivent être AVANT tout return conditionnel
   const [faceImage, setFaceImage] = useState<File | null>(null);
   const [inspirationImage, setInspirationImage] = useState<File | null>(null);
   const [extraImage, setExtraImage] = useState<File | null>(null);
@@ -39,11 +27,22 @@ export default function GeneratePage() {
   const [loading, setLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-
-  // Prévisualisation des images
   const [facePreview, setFacePreview] = useState<string>('');
   const [inspirationPreview, setInspirationPreview] = useState<string>('');
   const [extraPreview, setExtraPreview] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
+
+  // Marquer comme monté côté client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Redirection si non connecté
+  useEffect(() => {
+    if (mounted && !authLoading && !user) {
+      router.push('/auth');
+    }
+  }, [user, authLoading, router, mounted]);
 
   const handleFaceImage = (file: File) => {
     setFaceImage(file);
@@ -67,11 +66,9 @@ export default function GeneratePage() {
     });
   };
 
-  // Extra Image est maintenant optionnel
   const canGenerate = faceImage && inspirationImage && prompt.trim().length >= 10;
 
   const handleGenerate = async () => {
-    // Vérifier les crédits avant de générer - rediriger seulement si 0 crédits
     if (!profile || profile.credits === 0) {
       router.push('/pricing');
       return;
@@ -87,12 +84,10 @@ export default function GeneratePage() {
     setGeneratedImages([]);
 
     try {
-      // Convertir les images en base64
       const faceBase64 = await fileToBase64(faceImage!);
       const inspirationBase64 = await fileToBase64(inspirationImage!);
-      const extraBase64 = extraImage ? await fileToBase64(extraImage) : null; // Extra Image optionnel
+      const extraBase64 = extraImage ? await fileToBase64(extraImage) : null;
 
-      // Appeler l'API de génération (OPTIMISÉE)
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
@@ -110,20 +105,16 @@ export default function GeneratePage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        
-        // Si plus de crédits (402), rediriger vers la page tarifs
         if (response.status === 402) {
           router.push('/pricing');
           return;
         }
-        
         throw new Error(errorData.error || 'Erreur lors de la génération');
       }
 
       const data: GenerateResponse = await response.json();
       setGeneratedImages(data.images);
 
-      // Décrémenter les crédits après génération réussie
       await fetch('/api/credits/decrement', {
         method: 'POST',
         headers: {
@@ -135,7 +126,6 @@ export default function GeneratePage() {
         }),
       });
 
-      // Rafraîchir le profil pour mettre à jour les crédits affichés
       if (refreshProfile) {
         await refreshProfile();
       }
@@ -148,21 +138,28 @@ export default function GeneratePage() {
     }
   };
 
-  // Afficher un loader pendant la vérification de la session
-  if (authLoading) {
+  // Afficher un loader pendant le chargement initial
+  if (!mounted || authLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="text-2xl font-bold mb-2">{t('generate.loading')}</div>
-          <div className="text-gray-600">{t('generate.verifyingSession')}</div>
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-youtubeRed border-r-transparent mb-4"></div>
+          <div className="text-xl font-bold text-black">Chargement...</div>
         </div>
       </div>
     );
   }
 
-  // Ne pas afficher si pas d'utilisateur (sera redirigé)
+  // Redirection en cours
   if (!user) {
-    return null;
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-youtubeRed border-r-transparent mb-4"></div>
+          <div className="text-xl font-bold text-black">Redirection...</div>
+        </div>
+      </div>
+    );
   }
 
   return (
