@@ -1,23 +1,47 @@
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { getBaseMetadata, getOrganizationSchema, getWebApplicationSchema } from '@/lib/metadata';
+import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
-  title: 'MakeMinia - Génération de miniatures avec IA',
-  description: 'Générez des miniatures créatives pour YouTube avec l\'intelligence artificielle',
-  keywords: 'thumbnail, miniature, YouTube, IA, génération, image',
-};
+// Métadonnées SEO complètes
+export const metadata: Metadata = getBaseMetadata('fr');
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const organizationSchema = getOrganizationSchema();
+  const webAppSchema = getWebApplicationSchema('fr');
+
   return (
     <html lang="fr">
-      <body className={inter.className}>{children}</body>
+      <head>
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(webAppSchema),
+          }}
+        />
+      </head>
+      <body className={inter.className}>
+        <LanguageProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </LanguageProvider>
+      </body>
     </html>
   );
 }

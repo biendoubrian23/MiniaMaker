@@ -34,36 +34,12 @@ export default function GeneratedGrid({ images, loading = false }: GeneratedGrid
     return (
       <div className="w-full">
         <h2 className="text-xl font-bold text-textPrimary mb-4">
-          Miniatures générées
+          Génération en cours...
         </h2>
-        <div className="grid grid-cols-1 gap-6">
-          {[1, 2].map((i) => (
-            <div
-              key={i}
-              className="relative w-full aspect-video border-2 border-border bg-gradient-to-br from-white to-gray-50 flex items-center justify-center overflow-hidden"
-            >
-              {/* Barre de progression animée */}
-              <div className="absolute top-0 left-0 w-full h-1 bg-gray-200">
-                <div 
-                  className="h-full bg-gradient-to-r from-youtubeRed via-red-500 to-youtubeRed animate-pulse"
-                  style={{
-                    width: '70%',
-                    animation: 'shimmer 2s ease-in-out infinite'
-                  }}
-                />
-              </div>
-              
-              {/* Cercle spinner stylé */}
-              <div className="flex flex-col items-center">
-                <div className="relative w-16 h-16 mb-4">
-                  <div className="absolute inset-0 border-4 border-gray-200 rounded-full" />
-                  <div className="absolute inset-0 border-4 border-youtubeRed border-t-transparent rounded-full animate-spin" />
-                </div>
-                <p className="text-sm font-medium text-textPrimary animate-pulse">Génération en cours...</p>
-                <p className="text-xs text-textSecondary mt-1">Image {i}/2</p>
-              </div>
-            </div>
-          ))}
+        <div className="flex flex-col items-center justify-center py-16 space-y-4">
+          {/* Spinner cercle simple */}
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-youtubeRed rounded-full animate-spin"></div>
+          <p className="text-gray-600 text-sm">Création de vos miniatures...</p>
         </div>
       </div>
     );
@@ -89,7 +65,7 @@ export default function GeneratedGrid({ images, loading = false }: GeneratedGrid
             <div className="aspect-video w-full">
               <img
                 src={image}
-                alt={`Miniature générée ${index + 1}`}
+                alt={`Miniature YouTube générée par IA ${index + 1} - Qualité HD thumbnail professionnelle`}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -132,7 +108,7 @@ export default function GeneratedGrid({ images, loading = false }: GeneratedGrid
           </button>
           <img 
             src={selectedImage} 
-            alt="Aperçu plein écran" 
+            alt="Prévisualisation plein écran miniature YouTube HD 4K - Thumbnail professionnel généré par IA" 
             className="max-w-full max-h-full object-contain shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />

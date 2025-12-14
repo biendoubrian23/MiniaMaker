@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import { validatePrompt } from '@/lib/validate';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface PromptBoxProps {
   value: string;
@@ -10,6 +11,7 @@ interface PromptBoxProps {
 }
 
 export default function PromptBox({ value, onChange }: PromptBoxProps) {
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const minLength = 10;
   const maxLength = 2000;
@@ -34,16 +36,16 @@ export default function PromptBox({ value, onChange }: PromptBoxProps) {
     <div className="flex flex-col space-y-2">
       <label className="text-sm font-medium text-textPrimary flex items-center gap-2">
         <span className="w-1 h-4 bg-youtubeRed"></span>
-        Prompt de génération
+        {t('generate.title')}
       </label>
       <p className="text-xs text-textSecondary mb-2">
-        Décrivez précisément la miniature que vous souhaitez générer (minimum {minLength} caractères)
+        {t('generate.promptDesc')}
       </p>
 
       <textarea
         value={value}
         onChange={handleChange}
-        placeholder="Décrivez la miniature à générer..."
+        placeholder={t('generate.promptPlaceholder')}
         className={`
           w-full h-32 px-4 py-3 border-2 bg-white
           text-textPrimary placeholder-textSecondary

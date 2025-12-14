@@ -3,6 +3,7 @@
 
 import React, { useRef, useState } from 'react';
 import { validateImageFile } from '@/lib/validate';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface UploadBoxProps {
   label: string;
@@ -17,6 +18,7 @@ export default function UploadBox({
   onImageSelect,
   currentImage,
 }: UploadBoxProps) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,7 +63,7 @@ export default function UploadBox({
     
     const validation = validateImageFile(file);
     if (!validation.valid) {
-      setError(validation.error || 'Erreur de validation');
+      setError(validation.error || t('common.error'));
       return;
     }
 
@@ -98,12 +100,12 @@ export default function UploadBox({
           <div className="relative w-full h-full">
             <img
               src={currentImage}
-              alt="Preview"
+              alt="Aperçu miniature YouTube - image uploadée pour génération IA thumbnail"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
               <span className="text-white opacity-0 hover:opacity-100 font-medium">
-                Cliquer pour changer
+                {t('generate.clickToChange')}
               </span>
             </div>
           </div>
@@ -125,10 +127,10 @@ export default function UploadBox({
               </svg>
             </div>
             <p className="text-sm text-textPrimary font-medium mb-1">
-              Cliquez ou glissez une image
+              {t('generate.uploadBtn')}
             </p>
             <p className="text-xs text-textSecondary">
-              PNG, JPG, JPEG, WEBP • Max 10 Mo
+              {t('generate.uploadInfo')}
             </p>
           </div>
         )}

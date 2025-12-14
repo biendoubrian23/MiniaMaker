@@ -25,29 +25,41 @@ function parseDataUrl(dataUrl: string) {
 export async function generateThumbnails(
   faceImageBase64: string,
   inspirationImageBase64: string,
-  extraImageBase64: string,
+  extraImageBase64: string | null | undefined,
   prompt: string,
   count: number = 2
 ): Promise<string[]> {
   try {
     const model = 'gemini-3-pro-image-preview';
     
-    // Prompt ultra-compact pour générer l'image
-    const finalPrompt = `Create YouTube thumbnail 16:9. Include face, style reference, and object. ${prompt}`;
+    // Vérifier si l'image extra existe
+    const hasExtra = extraImageBase64 && extraImageBase64.trim().length > 0;
+    
+    // Prompt adapté selon la présence de l'image extra
+    const finalPrompt = hasExtra
+      ? `Create YouTube thumbnail 16:9. Include face, style reference, and object. ${prompt}`
+      : `Create YouTube thumbnail 16:9. Include face and style reference. ${prompt}`;
 
     const face = parseDataUrl(faceImageBase64);
     const inspiration = parseDataUrl(inspirationImageBase64);
-    const extra = parseDataUrl(extraImageBase64);
+
+    // Construire les parts dynamiquement
+    const parts: any[] = [
+      { text: finalPrompt },
+      { inlineData: { mimeType: face.mimeType, data: face.data } },
+      { inlineData: { mimeType: inspiration.mimeType, data: inspiration.data } },
+    ];
+
+    // Ajouter l'image extra seulement si elle existe
+    if (hasExtra) {
+      const extra = parseDataUrl(extraImageBase64!);
+      parts.push({ inlineData: { mimeType: extra.mimeType, data: extra.data } });
+    }
 
     const contents = [
       {
         role: 'user',
-        parts: [
-          { text: finalPrompt },
-          { inlineData: { mimeType: face.mimeType, data: face.data } },
-          { inlineData: { mimeType: inspiration.mimeType, data: inspiration.data } },
-          { inlineData: { mimeType: extra.mimeType, data: extra.data } },
-        ],
+        parts,
       },
     ];
 

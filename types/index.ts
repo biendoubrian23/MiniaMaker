@@ -8,10 +8,11 @@ export interface UploadedImage {
 export interface GenerateRequest {
   faceImageUrl: string;
   inspirationImageUrl: string;
-  extraImageUrl: string;
+  extraImageUrl?: string;
   prompt: string;
   count: number;
   model?: 'flash' | 'pro';
+  userId?: string;
 }
 
 export interface GenerateResponse {

@@ -38,8 +38,7 @@ export default function Button({
     >
       {loading ? (
         <div className="flex items-center justify-center">
-          <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
-          <span className="ml-2">Génération...</span>
+          <div className="w-5 h-5 border-3 border-youtubeRed border-t-transparent animate-spin" />
         </div>
       ) : (
         children
