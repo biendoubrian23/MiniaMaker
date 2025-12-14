@@ -185,7 +185,7 @@ export function getBaseMetadata(lang: 'fr' | 'en' = 'fr'): Metadata {
       description: descriptions[lang].short,
       images: [
         {
-          url: `${siteUrl}/og-image.png`,
+          url: `${siteUrl}/top.jpeg`,
           width: 1200,
           height: 630,
           alt: lang === 'fr' 
@@ -198,7 +198,7 @@ export function getBaseMetadata(lang: 'fr' | 'en' = 'fr'): Metadata {
       card: 'summary_large_image',
       title: titles.home[lang],
       description: descriptions[lang].short,
-      images: [`${siteUrl}/twitter-image.png`],
+      images: [`${siteUrl}/top.jpeg`],
       creator: '@makeminia',
       site: '@makeminia',
     },
