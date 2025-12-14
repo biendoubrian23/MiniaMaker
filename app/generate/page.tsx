@@ -25,6 +25,12 @@ export default function GeneratePage() {
       router.push('/auth');
     }
   }, [user, authLoading, router]);
+
+  // Ne rien afficher pendant le chargement - évite les erreurs d'hydration
+  if (authLoading || !user || !profile) {
+    return null;
+  }
+
   const [faceImage, setFaceImage] = useState<File | null>(null);
   const [inspirationImage, setInspirationImage] = useState<File | null>(null);
   const [extraImage, setExtraImage] = useState<File | null>(null);
