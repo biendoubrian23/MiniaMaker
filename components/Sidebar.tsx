@@ -11,7 +11,7 @@ import LanguageSelector from './LanguageSelector';
 interface NavItem {
     href: string;
     icon: React.ReactNode;
-    labelKey: string;
+    label: string;
 }
 
 interface SidebarProps {
@@ -24,6 +24,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     const { profile, signOut, loading } = useAuth();
     const { t } = useTranslation();
 
+    // Utiliser les traductions directement dans la définition pour éviter les erreurs TypeScript
     const navItems: NavItem[] = [
         {
             href: '/dashboard/workspace',
@@ -32,7 +33,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
             ),
-            labelKey: 'sidebar.workspace',
+            label: t('sidebar.workspace'),
         },
         {
             href: '/dashboard/storage',
@@ -41,7 +42,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                 </svg>
             ),
-            labelKey: 'sidebar.storage',
+            label: t('sidebar.storage'),
         },
         {
             href: '/dashboard/pricing',
@@ -50,7 +51,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             ),
-            labelKey: 'sidebar.pricing',
+            label: t('sidebar.pricing'),
         },
         {
             href: '/dashboard/settings',
@@ -60,7 +61,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
             ),
-            labelKey: 'sidebar.settings',
+            label: t('sidebar.settings'),
         },
     ];
 
@@ -162,7 +163,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                                 `}
                             >
                                 {item.icon}
-                                <span>{t(item.labelKey)}</span>
+                                <span>{item.label}</span>
                             </div>
                         </Link>
                     ))}
