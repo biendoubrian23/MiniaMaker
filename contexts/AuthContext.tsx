@@ -1,14 +1,16 @@
 // Contexte d'authentification
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { supabase, Profile } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
+  sessionChecked: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -16,11 +18,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true); // Commence à true pour éviter les redirections prématurées
+  const [loading, setLoading] = useState(true);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
-  const fetchProfile = async (userId: string) => {
+  // Ref pour éviter les initialisations multiples
+  const initialized = useRef(false);
+  const fetchingProfile = useRef(false);
+
+  const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
+    // Éviter les appels multiples simultanés
+    if (fetchingProfile.current) return null;
+    fetchingProfile.current = true;
+
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -30,7 +42,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         console.error('Error fetching profile:', error);
-        // Retourner null au lieu de bloquer
         return null;
       }
 
@@ -38,72 +49,121 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Unexpected error fetching profile:', error);
       return null;
+    } finally {
+      fetchingProfile.current = false;
     }
-  };
+  }, []);
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     if (user) {
       const profileData = await fetchProfile(user.id);
-      setProfile(profileData);
+      if (profileData) {
+        setProfile(profileData);
+      }
     }
-  };
+  }, [user, fetchProfile]);
 
   useEffect(() => {
-    // Vérifier la session au chargement
+    // Éviter les initialisations multiples
+    if (initialized.current) return;
+    initialized.current = true;
+
     const initAuth = async () => {
       try {
         setLoading(true);
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log('🔍 Session détectée:', session?.user ? `User ID: ${session.user.id}` : 'Aucune session');
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          const profileData = await fetchProfile(session.user.id);
-          console.log('👤 Profile chargé:', profileData);
-          setProfile(profileData);
+
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error) {
+          console.error('❌ Erreur récupération session:', error);
+          setUser(null);
+          setProfile(null);
+          return;
         }
+
+        console.log('🔍 Session:', session?.user ? `User ID: ${session.user.id}` : 'Aucune');
+
+        if (session?.user) {
+          setUser(session.user);
+          const profileData = await fetchProfile(session.user.id);
+          console.log('👤 Profile:', profileData);
+          setProfile(profileData);
+        } else {
+          setUser(null);
+          setProfile(null);
+        }
+      } catch (error) {
+        console.error('❌ Erreur init auth:', error);
+        setUser(null);
+        setProfile(null);
       } finally {
-        setLoading(false); // Toujours finir le chargement
+        setLoading(false);
+        setSessionChecked(true);
       }
     };
 
     initAuth();
 
     // Écouter les changements d'authentification
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const profileData = await fetchProfile(session.user.id);
-        setProfile(profileData);
-      } else {
-        setProfile(null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('🔄 Auth event:', event);
+
+        if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setProfile(null);
+          return;
+        }
+
+        if (session?.user) {
+          setUser(session.user);
+          // Ne pas refetch si c'est juste un token refresh
+          if (event !== 'TOKEN_REFRESHED') {
+            const profileData = await fetchProfile(session.user.id);
+            setProfile(profileData);
+          }
+        } else {
+          setUser(null);
+          setProfile(null);
+        }
       }
-    });
+    );
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [fetchProfile]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
-      console.log('🔴 Déconnexion en cours...');
+      console.log('🔴 Déconnexion...');
+      setLoading(true);
+
       const { error } = await supabase.auth.signOut();
+
       if (error) {
-        console.error('Erreur lors de la déconnexion:', error);
+        console.error('Erreur déconnexion:', error);
         return;
       }
+
+      // Clear state immédiatement
       setUser(null);
       setProfile(null);
+
       console.log('✅ Déconnexion réussie');
-      // Rediriger vers la page d'accueil après déconnexion
-      window.location.href = '/';
+
+      // Utiliser router.push pour une navigation propre
+      router.push('/');
+      router.refresh();
     } catch (error) {
-      console.error('Erreur inattendue lors de la déconnexion:', error);
+      console.error('Erreur inattendue:', error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, sessionChecked, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

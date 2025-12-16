@@ -54,8 +54,8 @@ export default function AuthPage() {
 
         if (error) throw error;
 
-        // Redirection vers /generate après connexion réussie
-        router.push('/generate');
+        // Redirection vers /dashboard/workspace après connexion réussie
+        router.push('/dashboard/workspace');
       } else {
         // Inscription - Validations supplémentaires
         const passwordValidation = validatePassword(password);
@@ -83,8 +83,8 @@ export default function AuthPage() {
 
         if (error) throw error;
 
-        // Redirection vers /generate après inscription réussie
-        router.push('/generate');
+        // Redirection vers /dashboard/workspace après inscription réussie
+        router.push('/dashboard/workspace');
       }
     } catch (err: any) {
       setError(err.message || t('auth.error'));
@@ -96,7 +96,7 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      
+
       <main className="max-w-md mx-auto px-4 md:px-6 py-8 md:py-20">
         <div className="bg-white border-2 md:border-4 border-black p-6 md:p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           {/* Titre */}

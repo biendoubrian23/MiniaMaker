@@ -17,10 +17,10 @@ export default function Home() {
   const { user } = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
-  
+
   // Liste des images pour les carousels - toutes les 10 images sur chaque carousel
   const allImages = Array.from({ length: 10 }, (_, i) => `/miniature/imagecarouselle (${i + 1}).jpeg`);
-  
+
   // Utiliser toutes les images sur chaque carousel pour un défilement complet
   const carousel1Images = allImages;
   const carousel2Images = [...allImages].reverse(); // Inversé pour variété
@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      
+
       {/* Hero Section avec carrousels en background */}
       <section className="relative overflow-hidden min-h-[600px] md:min-h-screen">
         {/* Carrousels en arrière-plan */}
@@ -38,17 +38,17 @@ export default function Home() {
           <div className="absolute top-0 left-0 w-full">
             <ImageCarousel images={carousel1Images} direction="horizontal" speed={20} reverse={false} />
           </div>
-          
+
           {/* Deuxième carousel - droite vers gauche */}
           <div className="absolute left-0 w-full top-[150px] sm:top-[200px] md:top-[288px]">
             <ImageCarousel images={carousel2Images} direction="horizontal" speed={20} reverse={true} />
           </div>
-          
+
           {/* Troisième carousel - gauche vers droite (visible uniquement sur mobile) */}
           <div className="absolute left-0 w-full top-[300px] md:hidden">
             <ImageCarousel images={carousel3Images} direction="horizontal" speed={10} reverse={false} />
           </div>
-          
+
           {/* Overlay sombre pour assombrir les images - s'arrête à mi-hauteur des stats */}
           <div className="absolute inset-x-0 top-0 bottom-[120px] md:bottom-[230px] bg-black/60 z-10"></div>
         </div>
@@ -63,21 +63,21 @@ export default function Home() {
             </div>
 
             {/* Titre principal */}
-            <h1 className="text-3xl sm:text-4xl md:text-7xl lg:text-8xl font-bold text-white leading-tight" style={{textShadow: '4px 4px 8px rgba(0,0,0,0.9), 2px 2px 4px rgba(0,0,0,0.8)'}}>
+            <h1 className="text-3xl sm:text-4xl md:text-7xl lg:text-8xl font-bold text-white leading-tight" style={{ textShadow: '4px 4px 8px rgba(0,0,0,0.9), 2px 2px 4px rgba(0,0,0,0.8)' }}>
               {t('home.title1')}
               <br />
-              <span className="text-youtubeRed" style={{textShadow: '4px 4px 8px rgba(0,0,0,0.9), 2px 2px 4px rgba(0,0,0,0.8)'}}>{t('home.title2')}</span>
+              <span className="text-youtubeRed" style={{ textShadow: '4px 4px 8px rgba(0,0,0,0.9), 2px 2px 4px rgba(0,0,0,0.8)' }}>{t('home.title2')}</span>
             </h1>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 px-4">
-              <button 
-                onClick={() => router.push(user ? '/generate' : '/auth')}
+              <button
+                onClick={() => router.push(user ? '/dashboard/workspace' : '/auth')}
                 className="w-full sm:w-auto px-6 py-4 sm:px-12 sm:py-5 bg-youtubeRed text-white text-base sm:text-lg font-bold border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] sm:hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] sm:hover:translate-x-[4px] sm:hover:translate-y-[4px] transition-all duration-200"
               >
                 {t('home.cta')}
               </button>
-              <button 
+              <button
                 onClick={() => setShowModal(true)}
                 className="w-full sm:w-auto px-6 py-4 sm:px-12 sm:py-5 bg-white text-black text-base sm:text-lg font-bold border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] sm:hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] sm:hover:translate-x-[4px] sm:hover:translate-y-[4px] transition-all duration-200"
               >
@@ -118,8 +118,8 @@ export default function Home() {
           <p className="text-xl text-gray-700">
             {t('home.finalSubtitle')}
           </p>
-          <button 
-            onClick={() => router.push(user ? '/generate' : '/auth')}
+          <button
+            onClick={() => router.push(user ? '/dashboard/workspace' : '/auth')}
             className="px-16 py-6 bg-black text-white text-xl font-bold border-4 border-black shadow-[12px_12px_0px_0px_rgba(255,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(255,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all duration-200"
           >
             {t('home.startNow')}
@@ -129,11 +129,11 @@ export default function Home() {
 
       {/* Modal Démo */}
       {showModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={() => setShowModal(false)}
         >
-          <div 
+          <div
             className="relative max-w-2xl w-full bg-white border-4 border-black p-4"
             onClick={(e) => e.stopPropagation()}
           >
@@ -144,12 +144,12 @@ export default function Home() {
             >
               ×
             </button>
-            
+
             {/* GIF */}
             <div className="w-full">
-              <img 
-                src="/gif2.gif" 
-                alt="Démonstration générateur miniature YouTube IA - MakeMinia création thumbnail professionnelle" 
+              <img
+                src="/gif2.gif"
+                alt="Démonstration générateur miniature YouTube IA - MakeMinia création thumbnail professionnelle"
                 className="w-full h-auto"
               />
             </div>

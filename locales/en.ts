@@ -139,4 +139,12 @@ export const en = {
   'common.confirm': 'Confirm',
   'common.error': 'Error',
   'common.success': 'Success',
+
+  // Sidebar
+  'sidebar.workspace': 'Workspace',
+  'sidebar.storage': 'Image Storage',
+  'sidebar.pricing': 'Pricing',
+  'sidebar.settings': 'Settings',
+  'sidebar.credits': 'Available Credits',
+  'sidebar.logout': 'LOGOUT',
 };

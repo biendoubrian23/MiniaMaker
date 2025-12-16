@@ -139,6 +139,14 @@ export const fr = {
   'common.confirm': 'Confirmer',
   'common.error': 'Erreur',
   'common.success': 'Succès',
+
+  // Sidebar
+  'sidebar.workspace': 'Espace de travail',
+  'sidebar.storage': 'Stockage images',
+  'sidebar.pricing': 'Tarifs',
+  'sidebar.settings': 'Paramètres',
+  'sidebar.credits': 'Crédits disponibles',
+  'sidebar.logout': 'DÉCONNEXION',
 };
 
 export type TranslationKey = keyof typeof fr;
