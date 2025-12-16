@@ -173,7 +173,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                 <div className="p-4 border-t-2 border-gray-200 space-y-3">
                     {/* Language Selector */}
                     <div className="flex items-center justify-center">
-                        <LanguageSelector variant="desktop" />
+                        <LanguageSelector variant="sidebar" />
                     </div>
 
                     {/* Logout Button */}

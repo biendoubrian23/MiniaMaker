@@ -1,4 +1,4 @@
-// Contexte d'authentification
+// Contexte d'authentification - Version améliorée
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
@@ -23,13 +23,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionChecked, setSessionChecked] = useState(false);
-
-  // Ref pour éviter les initialisations multiples
-  const initialized = useRef(false);
   const fetchingProfile = useRef(false);
 
   const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
-    // Éviter les appels multiples simultanés
     if (fetchingProfile.current) return null;
     fetchingProfile.current = true;
 
@@ -64,41 +60,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, fetchProfile]);
 
   useEffect(() => {
-    // Éviter les initialisations multiples
-    if (initialized.current) return;
-    initialized.current = true;
+    let mounted = true;
 
     const initAuth = async () => {
       try {
         setLoading(true);
+        console.log('🔍 Initialisation auth...');
 
         const { data: { session }, error } = await supabase.auth.getSession();
 
         if (error) {
           console.error('❌ Erreur récupération session:', error);
-          setUser(null);
-          setProfile(null);
+          if (mounted) {
+            setUser(null);
+            setProfile(null);
+          }
           return;
         }
 
         console.log('🔍 Session:', session?.user ? `User ID: ${session.user.id}` : 'Aucune');
 
-        if (session?.user) {
+        if (session?.user && mounted) {
           setUser(session.user);
           const profileData = await fetchProfile(session.user.id);
           console.log('👤 Profile:', profileData);
-          setProfile(profileData);
-        } else {
+          if (mounted) {
+            setProfile(profileData);
+          }
+        } else if (mounted) {
           setUser(null);
           setProfile(null);
         }
       } catch (error) {
         console.error('❌ Erreur init auth:', error);
-        setUser(null);
-        setProfile(null);
+        if (mounted) {
+          setUser(null);
+          setProfile(null);
+        }
       } finally {
-        setLoading(false);
-        setSessionChecked(true);
+        if (mounted) {
+          setLoading(false);
+          setSessionChecked(true);
+        }
       }
     };
 
@@ -109,9 +112,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, session) => {
         console.log('🔄 Auth event:', event);
 
+        if (!mounted) return;
+
         if (event === 'SIGNED_OUT') {
           setUser(null);
           setProfile(null);
+          return;
+        }
+
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log('✅ SIGNED_IN détecté, mise à jour user...');
+          setUser(session.user);
+          const profileData = await fetchProfile(session.user.id);
+          if (mounted) {
+            setProfile(profileData);
+          }
           return;
         }
 
@@ -120,7 +135,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Ne pas refetch si c'est juste un token refresh
           if (event !== 'TOKEN_REFRESHED') {
             const profileData = await fetchProfile(session.user.id);
-            setProfile(profileData);
+            if (mounted) {
+              setProfile(profileData);
+            }
           }
         } else {
           setUser(null);
@@ -130,6 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [fetchProfile]);
@@ -152,15 +170,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       console.log('✅ Déconnexion réussie');
 
-      // Utiliser router.push pour une navigation propre
-      router.push('/');
-      router.refresh();
+      // Redirection vers la page d'accueil
+      window.location.href = '/';
     } catch (error) {
       console.error('Erreur inattendue:', error);
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, profile, loading, sessionChecked, signOut, refreshProfile }}>

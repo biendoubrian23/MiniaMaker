@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 // URLs de paiement Stripe (mode test)
 const STRIPE_LINKS = {
     starter: 'https://buy.stripe.com/test_14AeVcfrKbuo4hh1yocV200',
-    pro: 'https://buy.stripe.com/test_aFa6oG2EY6a4bJJ50QcV201',
+    pro: 'https://buy.stripe.com/test_aFa6oG2EY6a4bJJ90QcV201',
 };
 
 export default function PricingPage() {
@@ -41,7 +41,7 @@ export default function PricingPage() {
             {/* Grille de plans */}
             <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Plan Starter */}
-                <div className="relative bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <div className="relative bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col">
                     <h2 className="text-2xl font-bold text-black mb-2">
                         {t('pricing.starter')}
                     </h2>
@@ -80,6 +80,9 @@ export default function PricingPage() {
                         </li>
                     </ul>
 
+                    {/* Spacer pour aligner le bouton en bas */}
+                    <div className="flex-grow"></div>
+
                     {/* Bouton */}
                     <a
                         href={getStripeUrl(STRIPE_LINKS.starter)}
@@ -90,7 +93,7 @@ export default function PricingPage() {
                 </div>
 
                 {/* Plan Pro */}
-                <div className="relative bg-white border-4 border-youtubeRed p-8 shadow-[8px_8px_0px_0px_rgba(255,0,0,1)]">
+                <div className="relative bg-white border-4 border-youtubeRed p-8 shadow-[8px_8px_0px_0px_rgba(255,0,0,1)] flex flex-col">
                     {/* Badge populaire */}
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                         <span className="px-4 py-2 bg-youtubeRed text-white font-bold text-sm border-2 border-black">
@@ -143,6 +146,9 @@ export default function PricingPage() {
                             <span>{t('pricing.feature7')}</span>
                         </li>
                     </ul>
+
+                    {/* Spacer pour aligner le bouton en bas */}
+                    <div className="flex-grow"></div>
 
                     {/* Bouton */}
                     <a

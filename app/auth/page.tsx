@@ -54,7 +54,11 @@ export default function AuthPage() {
 
         if (error) throw error;
 
-        // Redirection vers /dashboard/workspace après connexion réussie
+        // Attendre que onAuthStateChange traite l'événement SIGNED_IN
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Rediriger vers le dashboard
+        router.refresh();
         router.push('/dashboard/workspace');
       } else {
         // Inscription - Validations supplémentaires
@@ -83,7 +87,11 @@ export default function AuthPage() {
 
         if (error) throw error;
 
-        // Redirection vers /dashboard/workspace après inscription réussie
+        // Attendre que onAuthStateChange traite l'événement SIGNED_IN
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Rediriger vers le dashboard
+        router.refresh();
         router.push('/dashboard/workspace');
       }
     } catch (err: any) {
