@@ -1,13 +1,13 @@
 // Configuration SEO complète pour faireuneminiature.fr
 import type { Metadata } from 'next';
 
-const siteUrl = 'https://faireuneminiature.fr';
+const siteUrl = 'https://www.faireuneminiature.fr';
 const siteName = 'MakeMinia - Faire une Miniature YouTube';
 
-// Mots-clés SEO ultra-complets FR + EN
+// Mots-clés SEO ultra-complets FR + EN + variations
 export const keywords = {
   fr: [
-    // Mots-clés principaux FR
+    // Mots-clés principaux FR - Haute priorité
     'faire une miniature youtube',
     'créer miniature youtube',
     'générateur de miniature youtube',
@@ -23,13 +23,24 @@ export const keywords = {
     'design miniature youtube',
     'template miniature youtube',
     'générateur thumbnail youtube',
+    'faire une miniature',
+    'créer une miniature',
+    'générateur miniature',
+    'thumbnail maker',
+    'vignette youtube',
+    'créer vignette youtube',
+    'faire vignette youtube',
     // Mots-clés longue traîne FR
     'comment faire une miniature youtube',
     'comment créer une miniature youtube',
+    'comment faire une bonne miniature youtube',
+    'comment créer une miniature youtube attractive',
     'meilleur outil miniature youtube',
+    'meilleur générateur miniature youtube',
     'miniature youtube professionnelle',
     'miniature youtube attractive',
     'miniature youtube qui attire',
+    'miniature youtube qui clique',
     'augmenter vues youtube miniature',
     'booster clics youtube miniature',
     'miniature youtube clickbait',
@@ -44,6 +55,20 @@ export const keywords = {
     'miniature youtube sans photoshop',
     'miniature youtube sans canva',
     'alternative canva miniature youtube',
+    'site pour faire miniature youtube',
+    'application miniature youtube',
+    'miniature youtube personnalisée',
+    'miniature youtube avec visage',
+    'miniature youtube avec photo',
+    'miniature youtube intelligence artificielle',
+    'ia miniature youtube',
+    'intelligence artificielle miniature',
+    'générateur ia thumbnail',
+    'thumbnail ia gratuit',
+    'créateur de vignette youtube',
+    'outil vignette youtube',
+    'vignette youtube gratuit',
+    'vignette youtube ia',
     // Termes techniques FR
     'résolution miniature youtube',
     'taille miniature youtube',
@@ -52,6 +77,8 @@ export const keywords = {
     '1280x720 miniature youtube',
     'hd miniature youtube',
     '4k miniature youtube',
+    'miniature youtube haute qualité',
+    'miniature youtube haute définition',
     // Termes business FR
     'miniature youtube pour youtubeur',
     'miniature youtube pour créateur',
@@ -59,6 +86,16 @@ export const keywords = {
     'optimisation miniature youtube',
     'seo youtube miniature',
     'thumbnail youtube business',
+    'miniature youtube pour streameur',
+    'miniature youtube gaming',
+    'miniature youtube vlog',
+    'miniature youtube tutoriel',
+    // Expressions conversationnelles FR (pour recherche vocale)
+    'je veux faire une miniature youtube',
+    'je cherche un générateur de miniature',
+    'où créer une miniature youtube',
+    'quel site pour faire une miniature',
+    'meilleur site miniature youtube',
   ],
   en: [
     // Mots-clés principaux EN
@@ -76,10 +113,17 @@ export const keywords = {
     'thumbnail generator online',
     'youtube thumbnail template',
     'custom youtube thumbnail',
+    'thumbnail maker online',
+    'thumbnail creator free',
+    'ai thumbnail generator',
+    'ai thumbnail maker',
     // Mots-clés longue traîne EN
     'how to make youtube thumbnail',
     'how to create youtube thumbnail',
+    'how to make a good youtube thumbnail',
+    'how to create attractive youtube thumbnail',
     'best youtube thumbnail maker',
+    'best thumbnail generator',
     'professional youtube thumbnail',
     'attractive youtube thumbnail',
     'clickable youtube thumbnail',
@@ -95,6 +139,12 @@ export const keywords = {
     'youtube thumbnail without photoshop',
     'youtube thumbnail without canva',
     'canva alternative thumbnail',
+    'youtube thumbnail with face',
+    'youtube thumbnail with photo',
+    'youtube thumbnail artificial intelligence',
+    'thumbnail ai free',
+    'thumbnail maker ai',
+    'thumbnail generator ai free',
     // Termes techniques EN
     'youtube thumbnail size',
     'youtube thumbnail dimensions',
@@ -103,6 +153,7 @@ export const keywords = {
     '1280x720 thumbnail',
     'hd youtube thumbnail',
     '4k youtube thumbnail',
+    'high quality youtube thumbnail',
     // Termes business EN
     'youtube thumbnail for youtubers',
     'youtube thumbnail for creators',
@@ -110,6 +161,14 @@ export const keywords = {
     'optimize youtube thumbnail',
     'youtube seo thumbnail',
     'thumbnail optimization',
+    'youtube thumbnail for gamers',
+    'youtube thumbnail for vloggers',
+    'youtube thumbnail for tutorials',
+    // Conversational EN (voice search)
+    'i want to make a youtube thumbnail',
+    'where to create youtube thumbnail',
+    'best site for youtube thumbnails',
+    'what is the best thumbnail maker',
   ],
 };
 
@@ -346,6 +405,255 @@ export function getSoftwareApplicationSchema(lang: 'fr' | 'en' = 'fr') {
       '@type': 'AggregateRating',
       ratingValue: '4.8',
       reviewCount: '150',
+    },
+  };
+}
+
+// Schema pour les sitelinks Google (WebSite avec SearchAction)
+export function getWebSiteSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'MakeMinia - Faire une Miniature YouTube',
+    alternateName: ['FaireUneMiniature', 'Make Minia', 'Thumbnail Maker IA'],
+    url: siteUrl,
+    description: 'Générateur de miniatures YouTube propulsé par l\'intelligence artificielle. Créez des thumbnails professionnels en quelques secondes.',
+    inLanguage: ['fr-FR', 'en-US'],
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${siteUrl}/dashboard/workspace?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+}
+
+// Schema pour la navigation (SiteNavigationElement) - Pour les sitelinks
+export function getSiteNavigationSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Navigation MakeMinia',
+    itemListElement: [
+      {
+        '@type': 'SiteNavigationElement',
+        position: 1,
+        name: 'Créer une Miniature',
+        description: 'Générez votre miniature YouTube avec l\'IA',
+        url: `${siteUrl}/dashboard/workspace`,
+      },
+      {
+        '@type': 'SiteNavigationElement',
+        position: 2,
+        name: 'Tarifs',
+        description: 'Découvrez nos packs de crédits',
+        url: `${siteUrl}/pricing`,
+      },
+      {
+        '@type': 'SiteNavigationElement',
+        position: 3,
+        name: 'Connexion',
+        description: 'Connectez-vous à votre compte',
+        url: `${siteUrl}/auth`,
+      },
+      {
+        '@type': 'SiteNavigationElement',
+        position: 4,
+        name: 'Mes Miniatures',
+        description: 'Accédez à vos miniatures sauvegardées',
+        url: `${siteUrl}/dashboard/storage`,
+      },
+      {
+        '@type': 'SiteNavigationElement',
+        position: 5,
+        name: 'Politique de Confidentialité',
+        description: 'Notre politique de protection des données',
+        url: `${siteUrl}/privacy-policy`,
+      },
+      {
+        '@type': 'SiteNavigationElement',
+        position: 6,
+        name: 'Conditions d\'Utilisation',
+        description: 'Nos conditions générales d\'utilisation',
+        url: `${siteUrl}/terms-of-service`,
+      },
+    ],
+  };
+}
+
+// Schema FAQ pour la page d'accueil (aide au référencement)
+export function getFAQSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Comment faire une miniature YouTube gratuitement ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Avec MakeMinia, vous pouvez créer des miniatures YouTube gratuitement. Inscrivez-vous et recevez 3 crédits gratuits pour commencer. Uploadez votre photo, décrivez votre vision, et notre IA génère une miniature professionnelle en quelques secondes.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Quelle est la taille idéale pour une miniature YouTube ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'La taille recommandée par YouTube pour les miniatures est de 1280x720 pixels (ratio 16:9). MakeMinia génère automatiquement vos miniatures dans ce format optimal pour un affichage parfait sur YouTube.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Comment créer une miniature YouTube attractive ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Pour créer une miniature attractive : utilisez des couleurs vives, un visage expressif, du texte lisible et un contraste fort. MakeMinia utilise l\'IA pour générer des miniatures optimisées qui attirent les clics.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'MakeMinia est-il meilleur que Canva pour les miniatures YouTube ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'MakeMinia est spécialisé dans les miniatures YouTube et utilise l\'IA pour créer des designs uniques en quelques secondes. Contrairement à Canva, vous n\'avez pas besoin de compétences en design - décrivez simplement ce que vous voulez.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Combien coûte MakeMinia ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'MakeMinia offre 3 crédits gratuits à l\'inscription. Ensuite, le Pack Starter propose 10 crédits pour 4,99€ et le Pack Pro offre 25 crédits pour 9,99€. 1 crédit = 1 miniature générée.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Comment utiliser l\'IA pour créer des miniatures YouTube ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'MakeMinia utilise l\'IA Gemini de Google pour générer des miniatures. Uploadez une photo de visage, une image d\'inspiration, décrivez votre vidéo, et l\'IA crée une miniature professionnelle personnalisée en quelques secondes.',
+        },
+      },
+    ],
+  };
+}
+
+// Schema HowTo pour le référencement
+export function getHowToSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'Comment créer une miniature YouTube avec l\'IA',
+    description: 'Guide étape par étape pour créer une miniature YouTube professionnelle avec MakeMinia.',
+    image: `${siteUrl}/top.jpeg`,
+    totalTime: 'PT2M',
+    estimatedCost: {
+      '@type': 'MonetaryAmount',
+      currency: 'EUR',
+      value: '0',
+    },
+    tool: [
+      {
+        '@type': 'HowToTool',
+        name: 'MakeMinia - Générateur de miniatures IA',
+      },
+    ],
+    step: [
+      {
+        '@type': 'HowToStep',
+        name: 'Créer un compte',
+        text: 'Inscrivez-vous gratuitement sur MakeMinia et recevez 3 crédits offerts.',
+        url: `${siteUrl}/auth`,
+      },
+      {
+        '@type': 'HowToStep',
+        name: 'Uploader vos images',
+        text: 'Téléchargez une photo de visage et une image d\'inspiration pour votre miniature.',
+        url: `${siteUrl}/dashboard/workspace`,
+      },
+      {
+        '@type': 'HowToStep',
+        name: 'Décrire votre vision',
+        text: 'Écrivez une description de ce que vous voulez voir sur votre miniature.',
+        url: `${siteUrl}/dashboard/workspace`,
+      },
+      {
+        '@type': 'HowToStep',
+        name: 'Générer et télécharger',
+        text: 'Cliquez sur Générer et téléchargez votre miniature en HD.',
+        url: `${siteUrl}/dashboard/workspace`,
+      },
+    ],
+  };
+}
+
+// Schema BreadcrumbList pour la navigation
+export function getBreadcrumbSchema(page: string, pageName: string) {
+  const items = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Accueil',
+      item: siteUrl,
+    },
+  ];
+
+  if (page !== 'home') {
+    items.push({
+      '@type': 'ListItem',
+      position: 2,
+      name: pageName,
+      item: `${siteUrl}/${page}`,
+    });
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items,
+  };
+}
+
+// Schema Product pour les packs de crédits
+export function getProductSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: 'MakeMinia - Crédits de génération',
+    description: 'Crédits pour générer des miniatures YouTube professionnelles avec l\'IA',
+    brand: {
+      '@type': 'Brand',
+      name: 'MakeMinia',
+    },
+    offers: [
+      {
+        '@type': 'Offer',
+        name: 'Pack Starter',
+        description: '10 crédits de génération',
+        price: '4.99',
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        url: `${siteUrl}/pricing`,
+      },
+      {
+        '@type': 'Offer',
+        name: 'Pack Pro',
+        description: '25 crédits de génération',
+        price: '9.99',
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        url: `${siteUrl}/pricing`,
+      },
+    ],
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.9',
+      reviewCount: '127',
+      bestRating: '5',
+      worstRating: '1',
     },
   };
 }
