@@ -5,10 +5,10 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 
-// URLs de paiement Stripe (mode test)
+// URLs de paiement Stripe (mode PRODUCTION)
 const STRIPE_LINKS = {
-    starter: 'https://buy.stripe.com/test_14AeVcfrKbuo4hh1yocV200',
-    pro: 'https://buy.stripe.com/test_aFa6oG2EY6a4bJJ90QcV201',
+    starter: 'https://buy.stripe.com/28E3cuepOd3od9z8cZgjC00',
+    pro: 'https://buy.stripe.com/6oU6oG6Xm0gC6Lb64RgjC01',
 };
 
 export default function PricingPage() {

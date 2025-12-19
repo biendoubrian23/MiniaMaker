@@ -13,10 +13,10 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Configuration des packs
+// Configuration des packs - PRODUCTION
 const PACKS = {
-  'price_1Se4MCAsy7r4vU9cLn5iDckq': { name: 'starter', credits: 10, amount: 499 },
-  'price_1Se4MTAsy7r4vU9cTHZZYGlp': { name: 'pro', credits: 25, amount: 999 },
+  'price_1Sg1IfAD8RQLLuu15Jkwp4UJ': { name: 'starter', credits: 10, amount: 499 },
+  'price_1Sg1JAAD8RQLLuu1ie8SYSAc': { name: 'pro', credits: 25, amount: 999 },
 } as const;
 
 export async function POST(request: NextRequest) {
