@@ -9,6 +9,7 @@ interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
+  sessionChecked: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -19,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true); // Commence à true pour éviter les redirections prématurées
+  const [sessionChecked, setSessionChecked] = useState(false); // Indique si la session a été vérifiée
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -63,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } finally {
         setLoading(false); // Toujours finir le chargement
+        setSessionChecked(true); // Marquer que la session a été vérifiée
       }
     };
 
@@ -103,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, sessionChecked, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
