@@ -19,11 +19,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true); // Commence à true pour éviter les redirections prématurées
-  const [sessionChecked, setSessionChecked] = useState(false); // Indique si la session a été vérifiée
+  const [loading, setLoading] = useState(true);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
     try {
+      console.log('📡 Fetching profile for:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -31,14 +32,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) {
-        console.error('Error fetching profile:', error);
-        // Retourner null au lieu de bloquer
+        console.error('❌ Error fetching profile:', error);
         return null;
       }
 
+      console.log('✅ Profile fetched:', data);
       return data as Profile;
     } catch (error) {
-      console.error('Unexpected error fetching profile:', error);
+      console.error('❌ Unexpected error fetching profile:', error);
       return null;
     }
   };
@@ -51,40 +52,89 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Vérifier la session au chargement
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
+
     const initAuth = async () => {
       try {
-        setLoading(true);
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log('🔍 Session détectée:', session?.user ? `User ID: ${session.user.id}` : 'Aucune session');
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          const profileData = await fetchProfile(session.user.id);
-          console.log('👤 Profile chargé:', profileData);
-          setProfile(profileData);
+        console.log('🚀 Initialisation Auth...');
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ Erreur getSession:', error);
         }
+        
+        if (!isMounted) return;
+
+        console.log('🔍 Session:', session?.user ? `User ${session.user.id}` : 'Aucune');
+        
+        if (session?.user) {
+          setUser(session.user);
+          const profileData = await fetchProfile(session.user.id);
+          if (isMounted) {
+            setProfile(profileData);
+          }
+        } else {
+          setUser(null);
+          setProfile(null);
+        }
+      } catch (error) {
+        console.error('❌ Erreur initAuth:', error);
       } finally {
-        setLoading(false); // Toujours finir le chargement
-        setSessionChecked(true); // Marquer que la session a été vérifiée
+        if (isMounted) {
+          console.log('✅ Auth initialisé - loading=false, sessionChecked=true');
+          setLoading(false);
+          setSessionChecked(true);
+        }
       }
     };
+
+    // Timeout de sécurité - forcer la fin après 3 secondes
+    timeoutId = setTimeout(() => {
+      if (isMounted && (loading || !sessionChecked)) {
+        console.warn('⚠️ Timeout Auth - Forcer fin du loading');
+        setLoading(false);
+        setSessionChecked(true);
+      }
+    }, 3000);
 
     initAuth();
 
     // Écouter les changements d'authentification
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 Auth state change:', event, session?.user?.id);
+      
+      if (!isMounted) return;
+
       if (session?.user) {
-        const profileData = await fetchProfile(session.user.id);
-        setProfile(profileData);
+        setUser(session.user);
+        // Ne pas refetch le profile si c'est juste un TOKEN_REFRESHED
+        if (event !== 'TOKEN_REFRESHED') {
+          const profileData = await fetchProfile(session.user.id);
+          if (isMounted) {
+            setProfile(profileData);
+          }
+        }
       } else {
+        setUser(null);
         setProfile(null);
+      }
+      
+      // Toujours s'assurer que le loading est terminé
+      if (isMounted) {
+        setLoading(false);
+        setSessionChecked(true);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
@@ -98,7 +148,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setProfile(null);
       console.log('✅ Déconnexion réussie');
-      // Rediriger vers la page d'accueil après déconnexion
       window.location.href = '/';
     } catch (error) {
       console.error('Erreur inattendue lors de la déconnexion:', error);

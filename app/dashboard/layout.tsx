@@ -23,23 +23,34 @@ export default function DashboardLayout({
     // Rediriger vers auth si non connecté (après vérification session)
     useEffect(() => {
         if (mounted && sessionChecked && !loading && !user) {
+            console.log('🔄 Redirection vers /auth (non connecté)');
             router.push('/auth');
         }
     }, [mounted, sessionChecked, loading, user, router]);
 
-    // Afficher un loader pendant la vérification
-    if (!mounted || loading || !sessionChecked) {
+    // Debug logs
+    useEffect(() => {
+        console.log('📊 Dashboard Layout State:', { mounted, loading, sessionChecked, hasUser: !!user, hasProfile: !!profile });
+    }, [mounted, loading, sessionChecked, user, profile]);
+
+    // Afficher un loader pendant la vérification (max conditionnel)
+    const isLoading = !mounted || loading || !sessionChecked;
+    
+    if (isLoading) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="text-center">
                     <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-youtubeRed border-r-transparent mb-4"></div>
                     <div className="text-xl font-bold text-black">Chargement...</div>
+                    <div className="text-sm text-gray-500 mt-2">
+                        {!mounted ? 'Montage...' : !sessionChecked ? 'Vérification session...' : 'Chargement...'}
+                    </div>
                 </div>
             </div>
         );
     }
 
-    // Redirection en cours
+    // Redirection en cours (user null après vérification)
     if (!user) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center">
