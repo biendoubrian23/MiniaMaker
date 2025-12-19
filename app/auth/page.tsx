@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
@@ -236,6 +237,8 @@ export default function AuthPage() {
           </Link>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

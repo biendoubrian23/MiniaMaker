@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import Link from 'next/link';
 import ImageCarousel from '@/components/ImageCarousel';
 import { useAuth } from '@/contexts/AuthContext';
@@ -156,6 +157,8 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      <Footer />
     </div>
   );
 }

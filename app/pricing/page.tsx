@@ -3,6 +3,7 @@
 
 import React from 'react';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -171,6 +172,8 @@ export default function PricingPage() {
           </Link>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }
