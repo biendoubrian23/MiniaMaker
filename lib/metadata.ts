@@ -152,7 +152,7 @@ export const titles = {
 // Métadonnées de base pour tout le site
 export function getBaseMetadata(lang: 'fr' | 'en' = 'fr'): Metadata {
   const allKeywords = [...keywords.fr, ...keywords.en];
-  
+
   return {
     metadataBase: new URL(siteUrl),
     title: {
@@ -170,8 +170,8 @@ export function getBaseMetadata(lang: 'fr' | 'en' = 'fr'): Metadata {
       telephone: false,
     },
     icons: {
-      icon: '/favicon.ico',
-      shortcut: '/favicon.ico',
+      icon: '/favicon.jpeg',
+      shortcut: '/favicon.jpeg',
       apple: '/apple-touch-icon.png',
     },
     manifest: '/manifest.json',
@@ -188,7 +188,7 @@ export function getBaseMetadata(lang: 'fr' | 'en' = 'fr'): Metadata {
           url: `${siteUrl}/top.jpeg`,
           width: 1200,
           height: 630,
-          alt: lang === 'fr' 
+          alt: lang === 'fr'
             ? 'MakeMinia - Générateur de Miniature YouTube IA'
             : 'MakeMinia - AI YouTube Thumbnail Generator',
         },
@@ -236,7 +236,7 @@ export function getPageMetadata(
 ): Metadata {
   const base = getBaseMetadata(lang);
   const pageUrl = `${siteUrl}/${page === 'home' ? '' : page}`;
-  
+
   const pageDescriptions = {
     home: descriptions[lang].long,
     generate: lang === 'fr'
