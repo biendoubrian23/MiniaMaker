@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function WorkspacePage() {
-    const { user, profile, refreshProfile } = useAuth();
+    const { user, profile, refreshProfile, getAccessToken } = useAuth();
     const router = useRouter();
     const { t } = useTranslation();
 
@@ -73,10 +73,14 @@ export default function WorkspacePage() {
             const inspirationBase64 = await fileToBase64(inspirationImage!);
             const extraBase64 = extraImage ? await fileToBase64(extraImage) : null;
 
+            // Récupérer le token d'accès pour l'authentification serveur
+            const accessToken = await getAccessToken();
+
             const response = await fetch('/api/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    ...(accessToken && { 'Authorization': `Bearer ${accessToken}` }),
                 },
                 body: JSON.stringify({
                     faceImageUrl: faceBase64,

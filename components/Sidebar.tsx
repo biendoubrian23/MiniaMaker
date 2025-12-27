@@ -115,27 +115,33 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                 </div>
 
                 {/* User Info + Credits */}
-                {profile && (
+                {user && (
                     <div className="p-4 border-b-2 border-gray-200 bg-gray-50">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-youtubeRed text-white rounded-full flex items-center justify-center font-bold text-lg">
-                                {(profile.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || profile.email).charAt(0).toUpperCase()}
+                                {(profile?.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || profile?.email || user?.email || 'U').charAt(0).toUpperCase()}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="font-bold text-black text-sm truncate">
-                                    {profile.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || profile.email}
+                                    {profile?.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || profile?.email || user?.email || 'Utilisateur'}
                                 </p>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className={`px-2 py-0.5 text-xs font-bold border ${profile.subscription_tier === 'pro'
-                                        ? 'bg-yellow-400 text-black border-yellow-600'
-                                        : profile.subscription_tier === 'starter'
-                                            ? 'bg-blue-500 text-white border-blue-700'
-                                            : 'bg-gray-200 text-gray-700 border-gray-400'
-                                        }`}>
-                                        {profile.subscription_tier === 'pro' ? '⭐ PRO' :
-                                            profile.subscription_tier === 'starter' ? '🚀 STARTER' :
-                                                '🆓 FREE'}
-                                    </span>
+                                    {profile ? (
+                                        <span className={`px-2 py-0.5 text-xs font-bold border ${profile.subscription_tier === 'pro'
+                                            ? 'bg-yellow-400 text-black border-yellow-600'
+                                            : profile.subscription_tier === 'starter'
+                                                ? 'bg-blue-500 text-white border-blue-700'
+                                                : 'bg-gray-200 text-gray-700 border-gray-400'
+                                            }`}>
+                                            {profile.subscription_tier === 'pro' ? '⭐ PRO' :
+                                                profile.subscription_tier === 'starter' ? '🚀 STARTER' :
+                                                    '🆓 FREE'}
+                                        </span>
+                                    ) : (
+                                        <span className="px-2 py-0.5 text-xs font-bold border bg-gray-100 text-gray-400 border-gray-300 animate-pulse">
+                                            Chargement...
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -143,7 +149,11 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                         <div className="mt-3 p-3 bg-white border-2 border-black">
                             <div className="flex items-center justify-between">
                                 <span className="text-xs font-medium text-gray-600">{t('sidebar.credits')}</span>
-                                <span className="text-lg font-bold text-youtubeRed">{profile.credits}</span>
+                                {profile ? (
+                                    <span className="text-lg font-bold text-youtubeRed">{profile.credits}</span>
+                                ) : (
+                                    <span className="text-lg font-bold text-gray-300 animate-pulse">--</span>
+                                )}
                             </div>
                         </div>
                     </div>

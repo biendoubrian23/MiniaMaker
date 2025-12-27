@@ -86,26 +86,51 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
 
   console.log('📦 Pack acheté:', pack);
 
-  // Trouver l'utilisateur par email
-  const { data: users, error: userError } = await supabaseAdmin.auth.admin.listUsers();
+  // ✅ OPTIMISATION: Trouver l'utilisateur par email directement
+  // Essayer d'abord dans profiles, puis fallback sur auth.users
+  let userId: string | null = null;
   
-  if (userError) {
-    throw new Error(`Erreur recherche utilisateurs: ${userError.message}`);
+  // 1. Chercher dans profiles
+  const { data: profileData } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('email', customerEmail)
+    .single();
+  
+  if (profileData?.id) {
+    userId = profileData.id;
+  } else {
+    // 2. Fallback: chercher dans auth.users via l'API Admin
+    console.log('⚠️ Email non trouvé dans profiles, recherche dans auth.users...');
+    const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (!authError && authUsers?.users) {
+      const authUser = authUsers.users.find(u => u.email === customerEmail);
+      if (authUser) {
+        userId = authUser.id;
+        console.log('✅ Utilisateur trouvé dans auth.users:', userId);
+        
+        // Créer le profil s'il n'existe pas
+        await supabaseAdmin.from('profiles').upsert({
+          id: userId,
+          email: customerEmail,
+          credits: 0,
+          subscription_tier: 'free'
+        }, { onConflict: 'id' });
+      }
+    }
   }
-
-  const user = users.users.find(u => u.email === customerEmail);
   
-  if (!user) {
+  if (!userId) {
     throw new Error(`Utilisateur non trouvé pour email: ${customerEmail}`);
   }
-
-  console.log('👤 Utilisateur trouvé:', user.id);
+  console.log('👤 Utilisateur trouvé:', userId);
 
   // 1. Insérer le paiement dans la table payments
   const { error: paymentError } = await supabaseAdmin
     .from('payments')
     .insert({
-      user_id: user.id,
+      user_id: userId,
       stripe_payment_id: paymentIntentId,
       stripe_session_id: session.id,
       amount: amountTotal,
@@ -127,7 +152,7 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
   const { data: profile, error: profileFetchError } = await supabaseAdmin
     .from('profiles')
     .select('credits, subscription_tier')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single();
 
   if (profileFetchError) {
@@ -144,14 +169,14 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
       credits: newCredits,
       subscription_tier: pack.name,
     })
-    .eq('id', user.id);
+    .eq('id', userId);
 
   if (updateError) {
     throw new Error(`Erreur mise à jour profil: ${updateError.message}`);
   }
 
   console.log('✅ Profil mis à jour:', { 
-    userId: user.id, 
+    userId: userId, 
     newCredits, 
     tier: pack.name 
   });

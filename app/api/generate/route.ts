@@ -2,26 +2,70 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateThumbnails } from '@/lib/ai';
 import { uploadImageToStorage, saveGeneration, deductCredits } from '@/lib/storage';
+import { getAuthenticatedUser } from '@/lib/auth.server';
 import type { GenerateRequest, GenerateResponse, ErrorResponse } from '@/types';
+
+// Simple rate limiting en mémoire (reset au redémarrage serveur)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 10; // 10 générations
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // par heure
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const userLimit = rateLimitMap.get(userId);
+  
+  if (!userLimit || now > userLimit.resetTime) {
+    rateLimitMap.set(userId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  
+  if (userLimit.count >= RATE_LIMIT) {
+    return false;
+  }
+  
+  userLimit.count++;
+  return true;
+}
+
+// Sanitize le prompt pour éviter les injections
+function sanitizePrompt(prompt: string): string {
+  return prompt
+    .replace(/<[^>]*>/g, '') // Supprimer les balises HTML
+    .replace(/[<>]/g, '') // Supprimer les caractères < et >
+    .trim()
+    .slice(0, 2000); // Limiter la longueur
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const body: GenerateRequest = await request.json();
-    
-    // Utiliser le userId envoyé par le client (déjà authentifié côté client)
-    if (!body.userId) {
+    // ✅ SÉCURITÉ: Authentification côté serveur
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json<ErrorResponse>(
-        { error: 'Non authentifié - userId manquant' },
+        { error: 'Non authentifié - veuillez vous reconnecter' },
         { status: 401 }
       );
     }
+    
+    const userId = user.id;
+    
+    // ✅ SÉCURITÉ: Rate limiting
+    if (!checkRateLimit(userId)) {
+      return NextResponse.json<ErrorResponse>(
+        { error: 'Trop de requêtes. Veuillez réessayer dans une heure.' },
+        { status: 429 }
+      );
+    }
+
+    const body: GenerateRequest = await request.json();
+    
     console.log('Request received for generation:', {
-        prompt: body.prompt,
+        prompt: body.prompt?.slice(0, 50),
         count: body.count,
         hasFace: !!body.faceImageUrl,
         hasInspiration: !!body.inspirationImageUrl,
         hasExtra: !!body.extraImageUrl,
-        userId: body.userId
+        userId: userId
     });
 
     // Validation des champs requis
@@ -41,7 +85,9 @@ export async function POST(request: NextRequest) {
 
     // Image extra est optionnelle - pas de validation requise
 
-    if (!body.prompt || body.prompt.trim().length < 10) {
+    // ✅ SÉCURITÉ: Sanitization du prompt
+    const sanitizedPrompt = sanitizePrompt(body.prompt || '');
+    if (sanitizedPrompt.length < 10) {
       return NextResponse.json<ErrorResponse>(
         { error: 'Le prompt doit contenir au moins 10 caractères' },
         { status: 400 }
@@ -70,7 +116,7 @@ export async function POST(request: NextRequest) {
       const { data: profile } = await supabaseAdmin
         .from('profiles')
         .select('credits')
-        .eq('id', body.userId)
+        .eq('id', userId)
         .single();
       
       userCredits = profile?.credits || 0;
@@ -94,7 +140,7 @@ export async function POST(request: NextRequest) {
       body.faceImageUrl,
       body.inspirationImageUrl,
       body.extraImageUrl,
-      body.prompt,
+      sanitizedPrompt,
       count
     );
 
@@ -114,18 +160,18 @@ export async function POST(request: NextRequest) {
         const imageBuffer = Buffer.from(base64Data, 'base64');
 
         // Upload vers Supabase Storage
-        const imageUrl = await uploadImageToStorage(body.userId, imageBuffer, i);
+        const imageUrl = await uploadImageToStorage(userId, imageBuffer, i);
         uploadedImages.push(imageUrl);
 
         // Enregistrer dans la table generations
-        await saveGeneration(body.userId, body.prompt, imageUrl, creditsPerImage);
+        await saveGeneration(userId, sanitizedPrompt, imageUrl, creditsPerImage);
       }
 
       // Déduire les crédits de l'utilisateur
-      await deductCredits(body.userId, totalCredits);
+      await deductCredits(userId, totalCredits);
       storageSuccess = true;
 
-      console.log(`✅ ${images.length} images uploadées et ${totalCredits} crédits déduits pour user ${body.userId}`);
+      console.log(`✅ ${images.length} images uploadées et ${totalCredits} crédits déduits pour user ${userId}`);
       
     } catch (storageError) {
       // Le stockage a échoué (espace plein, erreur réseau, etc.)

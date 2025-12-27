@@ -1,20 +1,37 @@
 // API route pour décrémenter les crédits après génération
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+import { getAuthenticatedUser } from '@/lib/auth.server';
+
+// Client admin pour contourner RLS
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, count } = await request.json();
-
-    if (!userId || !count) {
+    // ✅ SÉCURITÉ: Authentification côté serveur
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json(
-        { error: 'userId et count sont requis' },
+        { error: 'Non authentifié' },
+        { status: 401 }
+      );
+    }
+    
+    const userId = user.id;
+    const { count } = await request.json();
+
+    if (!count || count < 1) {
+      return NextResponse.json(
+        { error: 'count est requis et doit être positif' },
         { status: 400 }
       );
     }
 
     // Récupérer le profil actuel
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('credits')
       .eq('id', userId)
@@ -36,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Décrémenter les crédits
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('profiles')
       .update({ credits: profile.credits - count })
       .eq('id', userId);
@@ -46,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Enregistrer la transaction
-    await supabase
+    await supabaseAdmin
       .from('credit_transactions')
       .insert({
         user_id: userId,
