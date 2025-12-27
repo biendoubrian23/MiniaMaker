@@ -212,18 +212,18 @@ export default function WorkspacePage() {
                                     <span className="w-1 h-4 bg-youtubeRed"></span>
                                     {t('generate.imageCount')}
                                 </label>
-                                <div className="flex space-x-4">
+                                <div className="grid grid-cols-4 gap-2">
                                     {[1, 2, 3, 4].map((num) => (
                                         <button
                                             key={num}
                                             onClick={() => setCount(num)}
                                             className={`
-                        px-6 py-3 border-2 font-medium transition-all duration-300 hover:scale-110
-                        ${count === num
-                                                    ? 'bg-youtubeRed text-white border-youtubeRed shadow-lg shadow-youtubeRed/50 scale-105'
+                                                px-3 py-3 border-2 font-medium transition-all duration-300 hover:scale-105
+                                                ${count === num
+                                                    ? 'bg-youtubeRed text-white border-youtubeRed shadow-lg shadow-youtubeRed/50'
                                                     : 'bg-white text-textPrimary border-border hover:border-youtubeRed hover:shadow-md'
                                                 }
-                      `}
+                                            `}
                                         >
                                             {num}
                                         </button>

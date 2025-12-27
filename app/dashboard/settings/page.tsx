@@ -1,7 +1,7 @@
 // Page Paramètres - Dashboard
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/lib/supabase';
@@ -9,9 +9,17 @@ import { supabase } from '@/lib/supabase';
 export default function SettingsPage() {
     const { user, profile, refreshProfile } = useAuth();
     const { t } = useTranslation();
-    const [fullName, setFullName] = useState(profile?.full_name || '');
+    
+    // Récupérer le nom depuis Google si le profil n'en a pas
+    const googleName = user?.user_metadata?.full_name || user?.user_metadata?.name || '';
+    const [fullName, setFullName] = useState('');
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    // Mettre à jour fullName quand profile ou user change
+    useEffect(() => {
+        setFullName(profile?.full_name || googleName);
+    }, [profile, googleName]);
 
     const handleSave = async () => {
         if (!user) return;
@@ -165,7 +173,7 @@ export default function SettingsPage() {
                     </h2>
 
                     <p className="text-gray-600 mb-4">
-                        Membre depuis le {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('fr-FR') : '-'}
+                        Membre depuis le {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Date inconnue'}
                     </p>
                 </section>
             </div>

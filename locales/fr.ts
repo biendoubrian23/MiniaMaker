@@ -105,6 +105,8 @@ export const fr = {
   'auth.passwordMismatch': 'Les mots de passe ne correspondent pas',
   'auth.nameRequired': 'Veuillez entrer votre nom complet',
   'auth.error': 'Une erreur est survenue',
+  'auth.continueWithGoogle': 'Continuer avec Google',
+  'auth.orContinueWith': 'Ou continuer avec',
 
   // Page tarifs
   'pricing.title': 'Choisissez Votre Plan',

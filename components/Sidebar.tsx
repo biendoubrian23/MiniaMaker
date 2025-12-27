@@ -21,7 +21,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     const pathname = usePathname();
-    const { profile, signOut, loading } = useAuth();
+    const { user, profile, signOut, loading } = useAuth();
     const { t } = useTranslation();
 
     // Utiliser les traductions directement dans la définition pour éviter les erreurs TypeScript
@@ -119,11 +119,11 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     <div className="p-4 border-b-2 border-gray-200 bg-gray-50">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-youtubeRed text-white rounded-full flex items-center justify-center font-bold text-lg">
-                                {(profile.full_name || profile.email).charAt(0).toUpperCase()}
+                                {(profile.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || profile.email).charAt(0).toUpperCase()}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="font-bold text-black text-sm truncate">
-                                    {profile.full_name || profile.email}
+                                    {profile.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || profile.email}
                                 </p>
                                 <div className="flex items-center gap-2 mt-1">
                                     <span className={`px-2 py-0.5 text-xs font-bold border ${profile.subscription_tier === 'pro'
